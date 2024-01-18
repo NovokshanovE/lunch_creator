@@ -1,32 +1,57 @@
 -- DB & tables
-CREATE DATABASE task_manager if not exists;
+CREATE DATABASE lunch_creator if not exists;
 
-CREATE TABLE tasklist (
+CREATE TABLE IF NOT EXISTS public."dishes"
+(
     id uuid NOT NULL,
-    "position" integer NOT NULL,
-    tasks uuid[] DEFAULT '{}'::uuid[],
-    name character varying(100) NOT NULL,
-    CONSTRAINT tasklist_position_check CHECK (("position" >= 0))
-) if not exists;
+    type_id uuid NOT NULL,
+    name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Dishes_pkey" PRIMARY KEY (id),
+    CONSTRAINT dishes_types_fkey FOREIGN KEY (type_id)
+        REFERENCES public."Types" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+);
 
-CREATE TABLE tasks (
+CREATE TABLE IF NOT EXISTS public."menu"
+(
     id uuid NOT NULL,
-    text character varying(200) NOT NULL,
+    variant integer NOT NULL,
+    day character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    dish_is uuid,
+    CONSTRAINT "Menu_pkey" PRIMARY KEY (id),
+    CONSTRAINT menu_dishes_fkey FOREIGN KEY (dish_is)
+        REFERENCES public."Dishes" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+CREATE TABLE IF NOT EXISTS public."types"
+(
+    id uuid NOT NULL,
+    type character varying(100) COLLATE pg_catalog."default" NOT NULL,
     "position" integer NOT NULL,
-    tasklist_id uuid,
-    CONSTRAINT tasks_position_check CHECK (("position" >= 0))
-) if not exists;
+    CONSTRAINT "Types_pkey" PRIMARY KEY (id)
+);
 
 
 -- User (actions: select, insert, update, delete)
 
 CREATE ROLE tm_admin LOGIN ENCRYPTED PASSWORD 'admin';
-GRANT  select, insert, update, delete on tasklist, tasks;
+GRANT  select, insert, update, delete on menu, dishes, types;
 
 -- SQL Queries
-select * from tasklist order by position;
 
-select * from tasks order by tasklist_id, position;
+--Get menu list
+select * from Menu order by day;
+
+--Get dishes from menu
+select menu_id, dish_id, position, type from menu_dishes as md
+join dishes on md.dish_id = dishes.id
+join menu on menu.id = md.menu_id
+join "types" on dishes.type_id = "types".id
+order by position;
 
 insert into tasklist (id, name, position) values (<id>, <name>, <pos>);
 

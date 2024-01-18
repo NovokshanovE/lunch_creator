@@ -47,16 +47,16 @@ export default class DB {
             
         }
     }
-    async getTaskLists(){
+    async getMenu(){
         try {
-            const tasklists = await this.#dbClient.query(
-                'select * from tasklist order by position;'
+            const menu = await this.#dbClient.query(
+                'select * from menu order by variant;'
 
             );
-            return tasklists.rows;
+            return menu.rows;
 
         } catch (error) {
-            console.error('Unable get tasklists, error: ', error);
+            console.error('Unable get menu, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error
@@ -64,16 +64,16 @@ export default class DB {
 
         }
     }
-    async getTasks(){
+    async getDishes(){
         try {
-            const tasks = await this.#dbClient.query(
-                'select * from tasks order by tasklist_id, position;'
+            const dishes = await this.#dbClient.query(
+                'select dishes.id, type, name, position from dishes join types t on t.id = dishes.type_id order by position;'
 
             );
-            return tasks.rows;
+            return dishes.rows;
 
         } catch (error) {
-            console.error('Unable get tasks, error: ', error);
+            console.error('Unable get dishes, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error
@@ -82,17 +82,111 @@ export default class DB {
         }
     }
 
-    async addTasklist({
-        tasklistID,
+
+    async getTypes(){
+        try {
+            const dishes = await this.#dbClient.query(
+                'select * from types order by position;'
+
+            );
+            return dishes.rows;
+
+        } catch (error) {
+            console.error('Unable get dishes, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+    }
+
+
+    async getDishesFromMenu({
+        menuID
+    } = {menuID: null}){
+        if(!menuID){
+            const errMsg = `Get dishes from menu by menuID error: wrong params (id: ${menuID})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+        try {
+            const result = await this.#dbClient.query(
+                'select dish_id from menu;'
+
+            );
+            const {dish_id: dishesID} = result.rows[0];
+            // const str_dishesID = '';
+            // for(let dishID of dishesID){
+            //     const str_dishesID = str_dishesID + "\'" + dishID + "\',";
+
+            // }
+            // console.log(str_dishesID);
+            
+
+            
+            return dishesID;
+
+        } catch (error) {
+            console.error('Unable get dishes, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+    }
+
+    async addMenu({
+        menuID,
+        variant,
+        day
+    } = {
+        menuID: null,
+        variant: -1,
+        day: ''
+    }){
+        if(!menuID || !day || variant < 0){
+            const errMsg = `Add menu error: wrong params (id: ${menuID}, day: ${day}, variant: ${variant})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+
+        try {
+            await this.#dbClient.query(
+                'insert into menu (id, day, variant) values ($1, $2, $3);',
+                [menuID, day, variant]
+
+            );
+
+        } catch (error) {
+            console.error('Unable add menu, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+    }
+
+    async addDish({
+        dishID,
         name,
-        position = -1
+        typeID,
+
     } = {
-        tasklistID: null,
+        dishID: null,
         name: '',
-        position: -1
+        typeID: null,
     }){
-        if(!tasklistID || !name || position < 0){
-            const errMsg = `Add tasklist error: wrong params (id: ${tasklistID}, name: ${name}, position: ${position})`;
+        if(!dishID || !name || !typeID){
+            const errMsg = `Add dish error: wrong params (id: ${dishID}, name: ${name}, typeID: ${typeID})`;
             console.error(errMsg);
             return Promise.reject({
                 type: 'client',
@@ -102,13 +196,14 @@ export default class DB {
 
         try {
             await this.#dbClient.query(
-                'insert into tasklist (id, name, position) values ($1, $2, $3);',
-                [tasklistID, name, position]
+                'insert into dishes (id, name, type_id) values ($1, $2, $3);',
+                [dishID, name, typeID]
 
             );
+            
 
         } catch (error) {
-            console.error('Unable add tasklist, error: ', error);
+            console.error('Unable add dish, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error
@@ -116,59 +211,17 @@ export default class DB {
 
         }
     }
-
-    async addTask({
-        taskID,
-        text,
-        position = -1,
-        tasklistID
+    async updateDish({
+        dishID,
+        name,
+        typeID
     } = {
-        taskID: null,
-        text: '',
-        position:-1,
-        tasklistID: null
+        dishID: null,
+        name: '',
+        typeID: null,
     }){
-        if(!tasklistID || !text || position < 0 || !taskID){
-            const errMsg = `Add tasklist error: wrong params (id: ${taskID}, text: ${text}, position: ${position}, tasklistId: ${tasklistID})`;
-            console.error(errMsg);
-            return Promise.reject({
-                type: 'client',
-                error: new Error(errMsg)
-            });
-        }
-
-        try {
-            await this.#dbClient.query(
-                'insert into tasks (id, text, position, tasklist_id) values ($1, $2, $3, $4);',
-                [taskID, text, position, tasklistID]
-
-            );
-            await this.#dbClient.query(
-                'update tasklist set tasks = array_append(tasks, $1) where id = $2;',
-                [taskID, tasklistID]
-
-            );
-
-        } catch (error) {
-            console.error('Unable add tasklist, error: ', error);
-            return Promise.reject({
-                type: 'internal',
-                error
-            });
-
-        }
-    }
-    async updateTask({
-        taskID,
-        text,
-        position = -1
-    } = {
-        taskID: null,
-        text: '',
-        position:-1,
-    }){
-        if((!text && position < 0) || !taskID){
-            const errMsg = `Update task error: wrong params (id: ${taskID}, text: ${text}, position: ${position})`;
+        if((!name && !typeID) || !dishID){
+            const errMsg = `Update dish error: wrong params (id: ${dishID}, name: ${text}, typeID: ${position})`;
             console.error(errMsg);
             return Promise.reject({
                 type: 'client',
@@ -178,17 +231,17 @@ export default class DB {
 
         let query = null;
         const queryParams = [];
-        if(text && position >= 0){
-            query = 'update tasks set text = $1, position = $2 where id = $3;';
-            queryParams.push(text, position, taskID);
-        } else if(text){
+        if(name && typeID){
+            query = 'update dishes set name = $1, type_id = $2 where id = $3;';
+            queryParams.push(name, typeID, dishID);
+        } else if(name){
             
-            query = 'update tasks set text = $1 where id = $2;';
-            queryParams.push(text, taskID);
+            query = 'update dishes set name = $1 where id = $2;';
+            queryParams.push(name, dishID);
             
         } else {
-            query = 'update tasks set position = $1 where id = $2;';
-            queryParams.push(position, taskID);
+            query = 'update dishes set type_id = $1 where id = $2;';
+            queryParams.push(typeID, dishID);
         }
         try {
             await this.#dbClient.query(
@@ -197,7 +250,7 @@ export default class DB {
             );
 
         } catch (error) {
-            console.error('Unable update tasks, error: ', error);
+            console.error('Unable update dish, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error
@@ -207,36 +260,68 @@ export default class DB {
 
     }
 
-    async deleteTask({
-        taskID
+    async deleteDish({
+        dishID
     } = {
-        taskID: null
+        dishID: null
     }){
-        if(!taskID){
-            const errMsg = `Delete task error: wrong params (id: ${taskID})`;
+        if(!dishID){
+            const errMsg = `Delete dish error: wrong params (id: ${dishID})`;
             console.error(errMsg);
             return Promise.reject({
                 type: 'client',
                 error: new Error(errMsg)
             });
         }
-        console.log(taskID);
+        console.log(dishID);
         try {
 
-            const queryResult = await this.#dbClient.query(
-                'select tasklist_id from tasks where id = $1;',
-                [taskID]
-
-            );
-            const {tasklist_id: tasklistID} = queryResult.rows[0];
+            
             await this.#dbClient.query(
-                'delete from tasks where id = $1;',
-                [taskID]
+                'delete from dishes where id = $1;',
+                [dishID]
 
             );
             await this.#dbClient.query(
-                'update tasklist set tasks = array_remove(tasks, $1) where id = $2;',
-                [taskID, tasklistID]
+                'update menu set dish_id = array_remove(dish_id, $1)',
+                [dishID]
+
+            );
+
+        } catch (error) {
+            console.error('Unable delete task, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+
+    }
+
+    async deleteDishFromMenu({
+        dishID,
+        menuID
+    } = {
+        dishID: null,
+        menuID: null
+    }){
+        if(!dishID || !menuID){
+            const errMsg = `Delete dish from menu error: wrong params (id: ${dishID}, menuID: ${menuID})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+        console.log(dishID);
+        try {
+
+            
+            
+            await this.#dbClient.query(
+                'update menu set dish_id = array_remove(dish_id, $1) where id = $2;',
+                [dishID, menuID]
 
             );
 
@@ -252,17 +337,17 @@ export default class DB {
     }
 
 
-    async moveTask({
-        taskID,
-        srcTasklistID,
-        destTasklistID
+    async moveDish({
+        dishID,
+        srcmenuID,
+        destmenuID
     } = {
-        taskID: null,
-        srcTasklistID: null,
-        destTasklistID: null
+        dishID: null,
+        srcmenuID: null,
+        destmenuID: null
     }){
-        if(!taskID || !srcTasklistID || !destTasklistID){
-            const errMsg = `Move task error: wrong params (id: ${taskID}, srcID: ${srcTasklistID}, destID: ${destTasklistID})`;
+        if(!dishID || !srcmenuID || !destmenuID){
+            const errMsg = `Move dish error: wrong params (id: ${dishID}, srcID: ${srcmenuID}, destID: ${destmenuID})`;
             console.error(errMsg);
             return Promise.reject({
                 type: 'client',
@@ -271,26 +356,56 @@ export default class DB {
         }
 
         try {
-
-            await this.#dbClient.query(
-                'update tasks set tasklist_id = $1 where id = $2;',
-                [destTasklistID, taskID]
-
-            );
             
             await this.#dbClient.query(
-                'update tasklist set tasks = array_append(tasks,$1) where id = $2;',
-                [taskID, destTasklistID]
+                'update menu set dish_id = array_append(dish_id,$1) where id = $2;',
+                [dishID, destmenuID]
 
             );
             await this.#dbClient.query(
-                'update tasklist set tasks = array_remove(tasks, $1) where id = $2;',
-                [taskID, srcTasklistID]
+                'update menu set dish_id = array_remove(dish_id, $1) where id = $2;',
+                [dishID, srcmenuID]
 
             );
 
         } catch (error) {
-            console.error('Unable move task, error: ', error);
+            console.error('Unable move dish, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+
+    }
+
+    async addDishToMenu({
+        dishID,
+        menuID
+    } = {
+        dishID: null,
+        menuID: null
+    }){
+        if(!dishID || !menuID){
+            const errMsg = `Add dish to menu error: wrong params (id: ${dishID}, menuID: ${menuID})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+
+        try {
+            
+            await this.#dbClient.query(
+                'update menu set dish_id = array_append(dish_id,$1) where id = $2;',
+                [dishID, menuID]
+
+            );
+            
+
+        } catch (error) {
+            console.error('Unable move dish, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error

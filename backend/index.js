@@ -40,25 +40,28 @@ app.use('*', (req, res, next) => {
 // middleware for static app files
 app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
-// get tasklists and tasks
-app.get('/tasklists', async (req, res) => {
+// get menu and dishes
+app.get('/menu', async (req, res) => {
     try {
-        const [dbTasklists, dbTasks] = await Promise.all([db.getTaskLists(),db.getTasks()]);
         
-        const tasks = dbTasks.map(({id, text, position}) => ({
-            taskID: id, text, position
+        const [dbmenu, dbDishes] = await Promise.all([db.getMenu(),db.getDishes()]);
+        
+        const dishes = dbDishes.map(({id, type, name, position}) => ({
+            dishID: id, type, name, position
         })); 
-
-        const tasklists = dbTasklists.map(tasklist => ({
-            tasklistID: tasklist.id,
-            name: tasklist.name,
-            position: tasklist.position,
-            tasks: tasks.filter(task => tasklist.tasks.indexOf(task.taskID) !== -1)
+        
+        console.log(dishes);
+        const menu = dbmenu.map(menu => ({
+            menuID: menu.id,
+            variant: menu.variant,
+            day: menu.day,
+            dishes: dishes.filter(dish => menu.dish_id.indexOf(dish.dishID) !== -1)
         }));
+        
 
         res.statusCode = 200;
         res.statusMessage = 'OK';
-        res.json({ tasklists });
+        res.json({ menu });
 
 
     } catch (err) {
@@ -67,16 +70,44 @@ app.get('/tasklists', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: 500,
-            message: `Getting tasklists and tasks error: ${err.error.message || err.error}`
+            message: `Getting menu and dishes error: ${ err.error}`
         });
     }
 });
-// body parsing middleware
-app.use('/tasklists', express.json())
-app.post('/tasklists', async (req, res) => {
+
+app.get('/types', async (req, res) => {
+    try {
+        
+        const [dbTypes] = await Promise.all([db.getTypes()]);
+        
+        const types = dbTypes.map(({id, type, position}) => ({
+            typeID: id, type, position
+        })); 
+        
+        
+        
+
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.json({ types });
+
+
+    } catch (err) {
+        res.statusCode = 500;
+        res.statusMessage = 'Internal server error';
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: 500,
+            message: `Getting menu and dishes error: ${ err.error}`
+        });
+    }
+});
+// // body parsing middleware
+app.use('/menu', express.json())
+app.post('/menu', async (req, res) => {
     try{
-        const { tasklistID, name, position } = req.body;
-        await db.addTasklist({ tasklistID, name, position});
+        const { menuID, variant, day} = req.body;
+        await db.addMenu({ menuID, variant, day});
         res.statusCode = 200;
         res.statusMessage = 'OK';
         res.send();
@@ -95,50 +126,19 @@ app.post('/tasklists', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Add tasklist error: ${err.error.message || err.error}`
+            message: `Add menu error: ${ err.error}`
         });
     }
 });
 
-
-// body parsing middleware
-app.use('/tasks', express.json())
-// add task
-app.post('/tasks', async (req, res) => {
-    try{
-        const { taskID, text, position, tasklistID} = req.body;
-        await db.addTask({ taskID, text, position, tasklistID});
-        res.statusCode = 200;
-        res.statusMessage = 'OK';
-        res.send();
-
-    } catch(err) {
-        switch(err.type){
-            case 'client':
-                res.statusCode = 400;
-                res.statusMessage = 'Bad request';
-                break;
-            default:
-                res.statusCode = 500;
-                res.statusMessage = 'Internal server error';
-        }
-        
-        res.json({
-            timestamp: new Date().toISOString(),
-            statusCode: res.statusCode,
-            message: `Add task error: ${err.error.message || err.error}`
-        });
-    }
-});
 
 // body parsing middleware
-app.use('/tasks/:taskID', express.json());
-// edit task params
-app.patch('/tasks/:taskID', async (req, res) => {
+app.use('/dishes', express.json())
+// add dish
+app.post('/dishes', async (req, res) => {
     try{
-        const {taskID} = req.params;
-        const { text, position} = req.body;
-        await db.updateTask({ taskID, text, position});
+        const { dishID, name, typeID} = req.body;
+        await db.addDish({ dishID, name, typeID});
         res.statusCode = 200;
         res.statusMessage = 'OK';
         res.send();
@@ -157,18 +157,18 @@ app.patch('/tasks/:taskID', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Update task params error: ${err.error.message || err.error}`
+            message: `Add dish error: ${ err.error}`
         });
     }
 });
 
-// edit several tasks position
-app.patch('/tasks', async ( req, res) => {
+app.use('/dishes/:dishID', express.json())
+// add dish to menu
+app.post('/dishes/:dishID', async (req, res) => {
     try{
-        const { reorderedTasks } = req.body;
-
-        await Promise.all(reorderedTasks.map(({ taskID, position}) => db.updateTask({ taskID,  position})));
-        
+        const {dishID} = req.params;
+        const { menuID} = req.body;
+        await db.addDishToMenu({ dishID, menuID});
         res.statusCode = 200;
         res.statusMessage = 'OK';
         res.send();
@@ -187,16 +187,77 @@ app.patch('/tasks', async ( req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Update tasks error: ${err.error.message || err.error}`
+            message: `Add dish error: ${ err.error}`
         });
     }
 });
+
+// body parsing middleware
+app.use('/dishes/:dishID', express.json());
+// edit dish params
+app.patch('/dishes/:dishID', async (req, res) => {
+    try{
+        const {dishID} = req.params;
+        const { name, typeID} = req.body;
+        await db.updateDish({ dishID, name, typeID});
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.send();
+
+    } catch(err) {
+        switch(err.type){
+            case 'client':
+                res.statusCode = 400;
+                res.statusMessage = 'Bad request';
+                break;
+            default:
+                res.statusCode = 500;
+                res.statusMessage = 'Internal server error';
+        }
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: res.statusCode,
+            message: `Update dish params error: ${err.error}`
+        });
+    }
+});
+
+// // edit several dishes position
+// app.patch('/dishes', async ( req, res) => {
+//     try{
+//         const { reordereddishes } = req.body;
+
+//         await Promise.all(reordereddishes.map(({ taskID, position}) => db.updateTask({ taskID,  position})));
+        
+//         res.statusCode = 200;
+//         res.statusMessage = 'OK';
+//         res.send();
+
+//     } catch(err) {
+//         switch(err.type){
+//             case 'client':
+//                 res.statusCode = 400;
+//                 res.statusMessage = 'Bad request';
+//                 break;
+//             default:
+//                 res.statusCode = 500;
+//                 res.statusMessage = 'Internal server error';
+//         }
+        
+//         res.json({
+//             timestamp: new Date().toISOString(),
+//             statusCode: res.statusCode,
+//             message: `Update dishes error: ${ err.error}`
+//         });
+//     }
+// });
 
 // delete task
-app.delete('/tasks/:taskID', async (req, res) => {
+app.delete('/dishes/:dishID', async (req, res) => {
     try{
-        const { taskID } = req.params;
-        await db.deleteTask({ taskID });
+        const { dishID } = req.params;
+        await db.deleteDish({ dishID });
 
         res.statusCode = 200;
         res.statusMessage = 'OK';
@@ -216,18 +277,47 @@ app.delete('/tasks/:taskID', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Delete task error: ${err.error.message || err.error}`
+            message: `Delete dish error: ${ err.error}`
+        });
+    }
+});
+
+
+app.delete('/dishes', async (req, res) => {
+    try{
+        const { dishID, menuID} = req.body;
+        await db.deleteDishFromMenu({ dishID , menuID});
+
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.send();
+
+    } catch(err) {
+        switch(err.type){
+            case 'client':
+                res.statusCode = 400;
+                res.statusMessage = 'Bad request';
+                break;
+            default:
+                res.statusCode = 500;
+                res.statusMessage = 'Internal server error';
+        }
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: res.statusCode,
+            message: `Delete dish from menu by id error: ${ err.error}`
         });
     }
 });
 
 
 
-// move task between tasklists
-app.patch('/tasklists', async (req, res) => {
+// move task between menu
+app.patch('/menu', async (req, res) => {
     try{
-        const {taskID, srcTasklistID, destTasklistID } = req.body;
-        await db.moveTask({taskID, srcTasklistID, destTasklistID  });
+        const {dishID, srcmenuID, destmenuID } = req.body;
+        await db.moveDish({dishID, srcmenuID, destmenuID  });
 
         res.statusCode = 200;
         res.statusMessage = 'OK';
@@ -247,7 +337,7 @@ app.patch('/tasklists', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Move task error: ${err.error.message || err.error}`
+            message: `Move task error: ${ err.error}`
         });
     }
 })
@@ -266,14 +356,14 @@ const server = app.listen(Number(appPort), appHost, async () => {
 
     console.log(`Task manager app started at host http://${appHost}:${appPort}`);
 
-    console.log(await db.getTaskLists());
+    console.log(await db.getMenu());
     // await db.moveTask({
     //     taskID: '8384e864-d359-4c38-b3a8-1e0dd929cbd0',
-    //     srcTasklistID: 'bdde8b73-e5d3-4972-91cc-fab71967f55c',
-    //     destTasklistID: 'e550ac89-c93c-4944-aee5-9f4d65e9b7c7'
+    //     srcmenuID: 'bdde8b73-e5d3-4972-91cc-fab71967f55c',
+    //     destmenuID: 'e550ac89-c93c-4944-aee5-9f4d65e9b7c7'
     // });
-    // console.log(await db.getTaskLists());
-    // console.log(await db.getTasks());
+    // console.log(await db.getmenu());
+    // console.log(await db.getdishes());
 });
 
 process.on('SIGTERM', () => {
