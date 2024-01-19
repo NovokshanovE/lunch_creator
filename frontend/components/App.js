@@ -1,4 +1,4 @@
-import Tasklist from './Tasklist';
+import Dishlist from './Dishlist';
 import AppModel from '../model/AppModel.js';
 
 export default class App {
@@ -23,26 +23,26 @@ export default class App {
       const tasklistID = crypto.randomUUID();
 
       try{
-        const addTasklistResult = await AppModel.addTaskLists({
+        const addDishlistResult = await AppModel.addDishLists({
           tasklistID,
           name: event.target.value,
           position: this.#tasklists.length
         });
 
-        const  newTasklist = new Tasklist({
+        const  newDishlist = new Dishlist({
           tasklistID,
           name: event.target.value,
           position: this.#tasklists.length,
-          onDropTaskInTasklist: this.onDropTaskInTasklist,
+          onDropDishInDishlist: this.onDropDishInDishlist,
           addNotification: this.addNotification
   
         });
 
-        this.#tasklists.push(newTasklist);
-        newTasklist.render();
+        this.#tasklists.push(newDishlist);
+        newDishlist.render();
 
         
-        this.addNotification({ text: addTasklistResult.message, type: 'success'});
+        this.addNotification({ text: addDishlistResult.message, type: 'success'});
 
       } catch (err) {
         this.addNotification({ text: err.message, type: 'error'});
@@ -60,58 +60,58 @@ export default class App {
       .style.display = 'inherit';
   };
 
-  onDropTaskInTasklist = async (evt) => {
+  onDropDishInDishlist = async (evt) => {
     evt.stopPropagation();
 
-    const destTasklistElement = evt.currentTarget;
-    destTasklistElement.classList.remove('tasklist_droppable');
+    const destDishlistElement = evt.currentTarget;
+    destDishlistElement.classList.remove('tasklist_droppable');
 
-    const movedTaskID = localStorage.getItem('movedTaskID');
-    const srcTasklistID = localStorage.getItem('srcTasklistID');
-    const destTasklistID = destTasklistElement.getAttribute('id');
+    const movedDishID = localStorage.getItem('movedDishID');
+    const srcDishlistID = localStorage.getItem('srcDishlistID');
+    const destDishlistID = destDishlistElement.getAttribute('id');
 
-    localStorage.setItem('movedTaskID', '');
-    localStorage.setItem('srcTasklistID', '');
+    localStorage.setItem('movedDishID', '');
+    localStorage.setItem('srcDishlistID', '');
 
-    if (!destTasklistElement.querySelector(`[id="${movedTaskID}"]`)) return;
+    if (!destDishlistElement.querySelector(`[id="${movedDishID}"]`)) return;
 
-    const srcTasklist = this.#tasklists.find(tasklist => tasklist.tasklistID === srcTasklistID);
-    const destTasklist = this.#tasklists.find(tasklist => tasklist.tasklistID === destTasklistID);
+    const srcDishlist = this.#tasklists.find(tasklist => tasklist.tasklistID === srcDishlistID);
+    const destDishlist = this.#tasklists.find(tasklist => tasklist.tasklistID === destDishlistID);
     
     try {
       
-      if (srcTasklistID !== destTasklistID) {
+      if (srcDishlistID !== destDishlistID) {
         
-        await AppModel.moveTask({
-          taskID: movedTaskID,
-          srcTasklistID,
-          destTasklistID
+        await AppModel.moveDish({
+          taskID: movedDishID,
+          srcDishlistID,
+          destDishlistID
         });
         // console.log('hqwjqjwq');
-        const movedTask = srcTasklist.deleteTask({ taskID: movedTaskID });
-        destTasklist.pushTask({ task: movedTask });
+        const movedDish = srcDishlist.deleteDish({ taskID: movedDishID });
+        destDishlist.pushDish({ task: movedDish });
   
-        await srcTasklist.reorderTasks();
+        await srcDishlist.reorderDishs();
         // console.log('hqwjqjwq');
       }
   
-      await destTasklist.reorderTasks();
+      await destDishlist.reorderDishs();
       // console.log('hqwjqjwq');
 
       
-      this.addNotification({ text: `Task (ID: ${movedTaskID}) move between tasklists`, type: 'success'});
+      this.addNotification({ text: `Dish (ID: ${movedDishID}) move between tasklists`, type: 'success'});
     } catch(err) {
       this.addNotification({ text: err.message, type: 'error'});
       console.error(err);
 
     }
-    // const destTasksIDs = Array.from(
-    //   destTasklistElement.querySelector('.tasklist__tasks-list').children,
+    // const destDishsIDs = Array.from(
+    //   destDishlistElement.querySelector('.tasklist__tasks-list').children,
     //   elem => elem.getAttribute('id')
     // );
 
-    // destTasksIDs.forEach((taskID, position) => {
-    //   destTasklist.getTaskById({ taskID }).taskPosition = position;
+    // destDishsIDs.forEach((taskID, position) => {
+    //   destDishlist.getDishById({ taskID }).taskPosition = position;
     // });
 
     // console.log(this.#tasklists);
@@ -119,24 +119,24 @@ export default class App {
 
  
 
-  editTask = async ({ taskID, newTaskText }) => {
-    let fTask = null;
+  editDish = async ({ taskID, newDishName }) => {
+    let fDish = null;
     for (let tasklist of this.#tasklists) {
-      fTask = tasklist.getTaskById({ taskID });
-      if (fTask) break;
+      fDish = tasklist.getDishById({ taskID });
+      if (fDish) break;
     }
 
-    const curTaskText = fTask.taskText;
-    if (!newTaskText || newTaskText === curTaskText) return;
+    const curDishName = fDish.taskName;
+    if (!newDishName || newDishName === curDishName) return;
 
     try{
-      const updateTaskResult = await AppModel.updateTask({ taskID, text: newTaskText});
+      const updateDishResult = await AppModel.updateDish({ taskID, text: newDishName});
 
-      fTask.taskText = newTaskText;
-      document.querySelector(`[id="${taskID}"] span.task__text`).innerHTML = newTaskText;
+      fDish.taskName = newDishName;
+      document.querySelector(`[id="${taskID}"] span.task__text`).innerHTML = newDishName;
 
-      console.log(updateTaskResult);
-      this.addNotification({ text: updateTaskResult.message, type: 'success'});
+      console.log(updateDishResult);
+      this.addNotification({ text: updateDishResult.message, type: 'success'});
     } catch (err) {
       this.addNotification({ text: err.message, type: 'error'});
       console.error(err);
@@ -146,23 +146,23 @@ export default class App {
     
   };
 
-  deleteTask = async ({ taskID }) => {
-    let fTask = null;
-    let fTasklist = null;
+  deleteDish = async ({ taskID }) => {
+    let fDish = null;
+    let fDishlist = null;
     for (let tasklist of this.#tasklists) {
-      fTasklist = tasklist;
-      fTask = tasklist.getTaskById({ taskID });
-      if (fTask) break;
+      fDishlist = tasklist;
+      fDish = tasklist.getDishById({ taskID });
+      if (fDish) break;
     }
 
 
     try{
-      const deleteTaskResult = await AppModel.deleteTask({ taskID });
+      const deleteDishResult = await AppModel.deleteDish({ taskID });
 
-      fTasklist.deleteTask({ taskID });
+      fDishlist.deleteDish({ taskID });
       document.getElementById(taskID).remove();
 
-      this.addNotification({ text: deleteTaskResult.message, type: 'success'});
+      this.addNotification({ text: deleteDishResult.message, type: 'success'});
     } catch (err) {
       this.addNotification({ text: err.message, type: 'error'});
       console.error(err);
@@ -171,77 +171,77 @@ export default class App {
     
   };
 
-  initAddTaskModal() {
-    const addTaskModal = document.getElementById('modal-add-task');
+  initAddDishModal() {
+    const addDishModal = document.getElementById('modal-add-task');
     const cancelHandler = () => {
-      addTaskModal.close();
-      localStorage.setItem('addTaskTasklistID', '');
-      addTaskModal.querySelector('.app-modal__input').value = '';
+      addDishModal.close();
+      localStorage.setItem('addDishDishlistID', '');
+      addDishModal.querySelector('.app-modal__input').value = '';
     };
 
     const okHandler = () => {
-      const tasklistID = localStorage.getItem('addTaskTasklistID');
-      const modalInput = addTaskModal.querySelector('.app-modal__input');
+      const tasklistID = localStorage.getItem('addDishDishlistID');
+      const modalInput = addDishModal.querySelector('.app-modal__input');
 
       if(tasklistID && modalInput.value){
-        this.#tasklists.find(tasklist => tasklist.tasklistID === tasklistID).appendNewTask({ text: modalInput.value});
+        this.#tasklists.find(tasklist => tasklist.tasklistID === tasklistID).appendNewDish({ text: modalInput.value});
 
       }
 
       cancelHandler();
     };
 
-    addTaskModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
-    addTaskModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
-    addTaskModal.addEventListener('close', cancelHandler);
+    addDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    addDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    addDishModal.addEventListener('close', cancelHandler);
   }
 
-  initEditTaskModal() {
-    const editTaskModal = document.getElementById('modal-edit-task');
+  initEditDishModal() {
+    const editDishModal = document.getElementById('modal-edit-task');
     const cancelHandler = () => {
-      editTaskModal.close();
-      localStorage.setItem('editTaskID', '');
-      editTaskModal.querySelector('.app-modal__input').value = '';
+      editDishModal.close();
+      localStorage.setItem('editDishID', '');
+      editDishModal.querySelector('.app-modal__input').value = '';
     };
 
     const okHandler = () => {
-      const taskID = localStorage.getItem('editTaskID');
-      const modalInput = editTaskModal.querySelector('.app-modal__input');
+      const taskID = localStorage.getItem('editDishID');
+      const modalInput = editDishModal.querySelector('.app-modal__input');
 
       if(taskID && modalInput.value){
-        this.editTask({taskID, newTaskText: modalInput.value});
+        this.editDish({taskID, newDishName: modalInput.value});
 
       }
 
       cancelHandler();
     };
 
-    editTaskModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
-    editTaskModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
-    editTaskModal.addEventListener('close', cancelHandler);
+    editDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    editDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    editDishModal.addEventListener('close', cancelHandler);
   }
 
-  initDeleteTaskModal() {
-    const deleteTaskModal = document.getElementById('modal-delete-task');
+  initDeleteDishModal() {
+    const deleteDishModal = document.getElementById('modal-delete-task');
     const cancelHandler = () => {
-      deleteTaskModal.close();
-      localStorage.setItem('deleteTaskID', '');
+      deleteDishModal.close();
+      localStorage.setItem('deleteDishID', '');
     };
 
     const okHandler = () => {
-      const taskID = localStorage.getItem('deleteTaskID');
+      const taskID = localStorage.getItem('deleteDishID');
 
       if(taskID){
-        this.deleteTask({taskID});
+        this.deleteDish({taskID});
 
       }
 
       cancelHandler();
     };
 
-    deleteTaskModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
-    deleteTaskModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
-    deleteTaskModal.addEventListener('close', cancelHandler);
+    deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    deleteDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    deleteDishModal.addEventListener('close', cancelHandler);
   }
 
 
@@ -294,9 +294,9 @@ export default class App {
           : document.body.classList.remove('dark-theme'));
       });
 
-    this.initAddTaskModal();
-    this.initEditTaskModal(); 
-    this.initDeleteTaskModal();
+    this.initAddDishModal();
+    this.initEditDishModal(); 
+    this.initDeleteDishModal();
     this.initNotifications();
 
 
@@ -350,23 +350,23 @@ export default class App {
     });
 
     try{
-      const tasklists = await AppModel.getTaskLists();
+      const tasklists = await AppModel.getDishLists();
       
       for(const tasklist of tasklists){
-        const tasklistObj = new Tasklist({
+        const tasklistObj = new Dishlist({
           tasklistID: tasklist.tasklistID,
           name: tasklist.name,
           position: tasklist.position,
-          onDropTaskInTasklist: this.onDropTaskInTasklist,
+          onDropDishInDishlist: this.onDropDishInDishlist,
           addNotification: this.addNotification
-          // onEditTask: this.onEditTask,
+          // onEditDish: this.onEditDish,
         });
 
         this.#tasklists.push(tasklistObj);
         tasklistObj.render();
 
         for( const task of tasklist.tasks){
-          tasklistObj.addNewTaskLocal({
+          tasklistObj.addNewDishLocal({
             taskID: task.taskID,
             text: task.text,
             position: task.position

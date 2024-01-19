@@ -1,16 +1,16 @@
 
 
 export default class AppModel {
-    static async getTaskLists() {
+    static async getMenu() {
         try{
-            const tasklistResponse = await fetch('http://localhost:4321/tasklists'); // get запрос по-умолчанию
-            const tasklistsBody = await tasklistResponse.json();
+            const menuResponse = await fetch('http://localhost:4321/menu'); // get запрос по-умолчанию
+            const menuBody = await menuResponse.json();
 
-            if(tasklistResponse.status !== 200){
-                return Promise.reject(tasklistsBody);
+            if(menuResponse.status !== 200){
+                return Promise.reject(menuBody);
             }
 
-            return tasklistsBody.tasklists;
+            return menuBody.menu;
         } catch(err){
             return Promise.reject({
                 timestamp: new Date().toISOString(),
@@ -21,31 +21,31 @@ export default class AppModel {
     }
 
 
-    static async addTaskLists({tasklistID, name, position = -1} = {
-        tasklistID: null,
-        name: '',
-        position: -1
+    static async addMenu({ menuID, variant = -1, day} = {
+        menuID: null,
+        variant: -1,
+        day: ''
     }) {
         try{
-            const addTasklistResponse = await fetch(
-                'http://localhost:4321/tasklists',
+            const addmenuResponse = await fetch(
+                'http://localhost:4321/menu',
                 {
                     method: 'POST',
-                    body: JSON.stringify({tasklistID, name, position}),
+                    body: JSON.stringify({ menuID, variant, day}),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ); // get запрос по-умолчанию
 
-            if(addTasklistResponse.status !== 200){
-                const addTaslistkBody = await addTasklistResponse.json();
+            if(addmenuResponse.status !== 200){
+                const addTaslistkBody = await addmenuResponse.json();
                 return Promise.reject(addTaslistkBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task list '${name}' was successfully added to list of task lists`
+                message: `Menu '${variant}' was successfully added to list of dish lists`
             };
         } catch(err){
             return Promise.reject({
@@ -56,32 +56,31 @@ export default class AppModel {
         }
     }
 
-    static async addTask({taskID, text, position, tasklistID = -1} = {
-        taskID: null,
-        text: '',
-        position: -1,
-        tasklistID: null
+    static async addDish({dishID, name, typeID} = {
+        dishID: null,
+        name: '',
+        typeID: null
     }) {
         try{
-            const addTaskResponse = await fetch(
-                'http://localhost:4321/tasks',
+            const addDishResponse = await fetch(
+                'http://localhost:4321/dishs',
                 {
                     method: 'POST',
-                    body: JSON.stringify({taskID, text, position, tasklistID}),
+                    body: JSON.stringify({dishID, name, typeID}),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ); // get запрос по-умолчанию
 
-            if(addTaskResponse.status !== 200){
-                const addTaskBody = await addTaskResponse.json();
-                return Promise.reject(addTaskBody);
+            if(addDishResponse.status !== 200){
+                const addDishBody = await addDishResponse.json();
+                return Promise.reject(addDishBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task '${text}' was successfully added to list of tasks`
+                message: `Dish '${name}' was successfully added to list of dishs`
             };
         } catch(err){
             return Promise.reject({
@@ -92,31 +91,65 @@ export default class AppModel {
         }
     }
 
-    static async updateTask({taskID, text, position = -1} = {
-        taskID: null,
-        text: '',
-        position: -1
+    static async addDishToMenu({dishID, menuID} = {
+        dishID: null,
+        menuID: null
     }) {
         try{
-            const updateTaskResponse = await fetch(
-                `http://localhost:4321/tasks/${taskID}`,
+            const addDishResponse = await fetch(
+                'http://localhost:4321/dishs',
+                {
+                    method: 'POST',
+                    body: JSON.stringify({dishID, menuID}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            ); // get запрос по-умолчанию
+
+            if(addDishResponse.status !== 200){
+                const addDishBody = await addDishResponse.json();
+                return Promise.reject(addDishBody);
+            }
+
+            return {
+                timestamp: new Date().toISOString(),
+                message: `Dish '${dishID}' was successfully added to menu '${menuID}'`
+            };
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
+
+    static async updateDish({dishID, name, typeID} = {
+        dishID: null,
+        name: '',
+        typeID: null
+    }) {
+        try{
+            const updateDishResponse = await fetch(
+                `http://localhost:4321/dishs/${dishID}`,
                 {
                     method: 'PATCH',
-                    body: JSON.stringify({text, position}),
+                    body: JSON.stringify({name, typeID}),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ); // get запрос по-умолчанию
 
-            if(updateTaskResponse.status !== 200){
-                const updateTaskBody = await updateTaskResponse.json();
-                return Promise.reject(updateTaskBody);
+            if(updateDishResponse.status !== 200){
+                const updateDishBody = await updateDishResponse.json();
+                return Promise.reject(updateDishBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task '${text}' was successfully update`
+                message: `Dish '${name}' was successfully update`
             };
         } catch(err){
             return Promise.reject({
@@ -127,29 +160,29 @@ export default class AppModel {
         }
     }
 
-    static async updateTasks({reorderedTasks = []} = {
-        reorderedTasks: []
+    static async updateDishes({reordereddishes = []} = {
+        reordereddishes: []
     }) {
         try{
-            const updateTasksResponse = await fetch(
-                `http://localhost:4321/tasks`,
+            const updateDishsResponse = await fetch(
+                `http://localhost:4321/dishs`,
                 {
                     method: 'PATCH',
-                    body: JSON.stringify({ reorderedTasks}),
+                    body: JSON.stringify({ reordereddishes}),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ); // get запрос по-умолчанию
 
-            if(updateTasksResponse.status !== 200){
-                const updateTasksBody = await updateTasksResponse.json();
-                return Promise.reject(updateTasksBody);
+            if(updateDishsResponse.status !== 200){
+                const updateDishsBody = await updateDishsResponse.json();
+                return Promise.reject(updateDishsBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task was successfully changed`
+                message: `Dish was successfully changed`
             };
         } catch(err){
             return Promise.reject({
@@ -160,25 +193,55 @@ export default class AppModel {
         }
     }
 
-    static async deleteTask({taskID } = {
-        taskID: null
+    static async deleteDish({dishID } = {
+        dishID: null
     }) {
         try{
-            const deleteTaskResponse = await fetch(
-                `http://localhost:4321/tasks/${taskID}`,
+            const deleteDishResponse = await fetch(
+                `http://localhost:4321/dishs/${dishID}`,
                 {
                     method: 'DELETE'
                 }
             ); // get запрос по-умолчанию
 
-            if(deleteTaskResponse.status !== 200){
-                const deleteTaskBody = await deleteTaskResponse.json();
-                return Promise.reject(deleteTaskBody);
+            if(deleteDishResponse.status !== 200){
+                const deleteDishBody = await deleteDishResponse.json();
+                return Promise.reject(deleteDishBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task (ID = '${taskID}') was successfully delete from task list`
+                message: `Dish (ID = '${dishID}') was successfully delete from dish list`
+            };
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
+
+    static async deleteDishFromMenu({dishID, menuID} = {
+        dishID: null,
+        menuID: null
+    }) {
+        try{
+            const deleteDishResponse = await fetch(
+                `http://localhost:4321/dishs/${dishID, menuID}`,
+                {
+                    method: 'DELETE'
+                }
+            ); // get запрос по-умолчанию
+
+            if(deleteDishResponse.status !== 200){
+                const deleteDishBody = await deleteDishResponse.json();
+                return Promise.reject(deleteDishBody);
+            }
+
+            return {
+                timestamp: new Date().toISOString(),
+                message: `Dish (ID = '${dishID}', menuID=${menuID}) was successfully delete from dish list`
             };
         } catch(err){
             return Promise.reject({
@@ -190,31 +253,31 @@ export default class AppModel {
     }
 
 
-    static async moveTask({taskID, srcTasklistID, destTasklistID} = {
-        taskID: null,
-        srcTasklistID: null,
-        destTasklistID: null
+    static async moveDish({dishID, srcmenuID, destmenuID} = {
+        dishID: null,
+        srcmenuID: null,
+        destmenuID: null
     }) {
         try{
-            const moveTaskResponse = await fetch(
-                `http://localhost:4321/tasklists`,
+            const moveDishResponse = await fetch(
+                `http://localhost:4321/Menu`,
                 {
                     method: 'PATCH',
-                    body: JSON.stringify({taskID, srcTasklistID, destTasklistID}),
+                    body: JSON.stringify({dishID, srcmenuID, destmenuID}),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             ); // get запрос по-умолчанию
 
-            if(moveTaskResponse.status !== 200){
-                const moveTaskBody = await moveTaskResponse.json();
-                return Promise.reject(moveTaskBody);
+            if(moveDishResponse.status !== 200){
+                const moveDishBody = await moveDishResponse.json();
+                return Promise.reject(moveDishBody);
             }
 
             return {
                 timestamp: new Date().toISOString(),
-                message: `Task '${taskID}}' was successfully moved from ${srcTasklistID} to ${destTasklistID} `
+                message: `Dish '${dishID}}' was successfully moved from ${srcmenuID} to ${destmenuID} `
             };
         } catch(err){
             return Promise.reject({

@@ -223,35 +223,35 @@ app.patch('/dishes/:dishID', async (req, res) => {
     }
 });
 
-// // edit several dishes position
-// app.patch('/dishes', async ( req, res) => {
-//     try{
-//         const { reordereddishes } = req.body;
+// edit several dishes position
+app.patch('/dishes', async ( req, res) => {
+    try{
+        const { reordereddishes } = req.body;
 
-//         await Promise.all(reordereddishes.map(({ taskID, position}) => db.updateTask({ taskID,  position})));
+        await Promise.all(reordereddishes.map(({ dishID, taskID}) => db.updateTask({ dishID,  taskID})));
         
-//         res.statusCode = 200;
-//         res.statusMessage = 'OK';
-//         res.send();
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.send();
 
-//     } catch(err) {
-//         switch(err.type){
-//             case 'client':
-//                 res.statusCode = 400;
-//                 res.statusMessage = 'Bad request';
-//                 break;
-//             default:
-//                 res.statusCode = 500;
-//                 res.statusMessage = 'Internal server error';
-//         }
+    } catch(err) {
+        switch(err.type){
+            case 'client':
+                res.statusCode = 400;
+                res.statusMessage = 'Bad request';
+                break;
+            default:
+                res.statusCode = 500;
+                res.statusMessage = 'Internal server error';
+        }
         
-//         res.json({
-//             timestamp: new Date().toISOString(),
-//             statusCode: res.statusCode,
-//             message: `Update dishes error: ${ err.error}`
-//         });
-//     }
-// });
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: res.statusCode,
+            message: `Update dishes error: ${ err.error}`
+        });
+    }
+});
 
 // delete task
 app.delete('/dishes/:dishID', async (req, res) => {
