@@ -28,10 +28,33 @@ export default class Menu {
 
   getDishById = ({ dishID }) => this.#dishes.find(dish => dish.dishID === dishID);
 
-  deleteDish = ({ dishID }) => {
+  deleteDish = async ({ dishID }) => {
     const deleteDishIndex = this.#dishes.findIndex(dish => dish.dishID === dishID);
 
     if (deleteDishIndex === -1) return;
+
+    const menus = await AppModel.getMenu();
+    // console.log(menus);
+    for(const menu of menus){
+      
+
+      for( const dish of menu.dishes){
+        if(dish.dishID = dishID){
+          this.addNewDishLocal({
+            dishID: dish.dishID,
+            name: dish.name,
+            typeID: dish.type_id,
+            position: dish.position,
+            type: dish.type,
+            menuID: menu.menuID
+          });
+        }
+        
+
+        // console.log(dish.name);
+      
+      }
+    }
 
     const [deletedDish] = this.#dishes.splice(deleteDishIndex, 1);
 
@@ -113,23 +136,30 @@ export default class Menu {
       });
       
       const menus = await AppModel.getMenu();
-      console.log(menus);
-      // for(const menu of menus){
+      // console.log(menus);
+      for(const menu of menus){
         
+        if(this.#menuID === menu.menuID){
+          for( const dish of menu.dishes){
+            if(dish.dishID === dishID){
+              this.addNewDishLocal({
+                dishID: dish.dishID,
+                name: dish.name,
+                typeID: dish.type_id,
+                position: dish.position,
+                type: dish.type,
+                menuID: menu.menuID
+              });
+            }
+        }
+        
+          
 
-      //   for( const dish of menu.dishes){
-      //     this.addNewDishLocal({
-      //       dishID: dish.dishID,
-      //       name: dish.name,
-      //       typeID: dish.type_id,
-      //       position: dish.position,
-      //       type: dish.type
-      //     });
-      //     console.log(dish.name);
+          // console.log(dish.name);
         
-      //   }
-      // }
-      this.render();
+        }
+      }
+      
 
 
       this.addNotification({ name: addDishResult.message, type: 'success'});
@@ -146,12 +176,13 @@ export default class Menu {
     name,
     position,
     typeID = null,
-    type}) => {
+    type, menuID = null}) => {
     const newDish = new Dish({
       dishID, name,
       position,
       typeID,
-      type
+      type,
+      menuID
     });
     this.#dishes.push(newDish);
     console.log(name);

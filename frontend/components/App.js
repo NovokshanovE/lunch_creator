@@ -177,21 +177,15 @@ export default class App {
   };
 
 
-  deleteDish = async ({ dishID }) => {
-    let fDish = null;
-    let fMenu = null;
-    for (let menu of this.#menus) {
-      fMenu = menu;
-      fDish = menu.getDishById({ dishID });
-      if (fDish) break;
-    }
-
+  deleteDishFromMenu = async ({ dishID }) => {
 
     try{
-      const deleteDishResult = await AppModel.deleteDish({ dishID });
+      const menuID = localStorage.getItem('deleteDishFromMenuID');
+      console.log("dID= ", dishID, "mID= ", menuID);
+      const deleteDishResult = await AppModel.deleteDishFromMenu({ dishID , menuID});
 
-      fMenu.deleteDish({ dishID });
-      document.getElementById(dishID).remove();
+      this.#menus.find(menu => menu.menuID === menuID).render();
+      // document.getElementById(dishID).remove();
 
       this.addNotification({ name: deleteDishResult.message, type: 'success'});
     } catch (err) {
@@ -231,13 +225,13 @@ export default class App {
     };
 
     const okHandler = () => {
-      const menuID = localStorage.getItem(' ');
+      const menuID = localStorage.getItem('addDishMenuID');
       const modalInput = addDishModal.querySelector('.app-modal__input');
       const id_selected = localStorage.getItem('selected_add_to_menu');
       const selectElement = document.getElementById(id_selected);
-      const dishID = String(selectElement.value);
+      const dishID = String(selectElement.options[selectElement.selectedIndex].value);
       console.log(dishID);
-      if(menuID && modalInput.value){
+      if(menuID){
         this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
 
       }
@@ -249,6 +243,36 @@ export default class App {
     addDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
     addDishModal.addEventListener('close', cancelHandler);
   }
+
+  initAddDishModal() {
+    const addDishModal = document.getElementById('modal-add-dish-to-base');
+    
+    const cancelHandler = () => {
+      addDishModal.close();
+      localStorage.setItem('addDishMenuID', '');
+      addDishModal.querySelector('.app-modal__input').value = '';
+    };
+
+    const okHandler = () => {
+      const menuID = localStorage.getItem(' ');
+      // const modalInput = addDishModal.querySelector('.app-modal__input');
+      const id_selected = localStorage.getItem('selected_add_to_menu');
+      const selectElement = document.getElementById(id_selected);
+      const dishID = String(selectElement.value);
+      console.log(dishID);
+      if(menuID){
+        this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
+
+      }
+
+      cancelHandler();
+    };
+
+    addDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    addDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    addDishModal.addEventListener('close', cancelHandler);
+  }
+
 
   initEditDishModal() {
     const editDishModal = document.getElementById('modal-edit-dish');
@@ -308,10 +332,14 @@ export default class App {
     const okHandler = () => {
       const dishID = localStorage.getItem('deleteDishID');
 
-      if(dishID){
-        this.deleteDish({dishID});
+      
+        
+        // this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
+  
+        
+      this.deleteDishFromMenu({dishID});
 
-      }
+      
 
       cancelHandler();
     };
@@ -373,8 +401,9 @@ export default class App {
 
     this.initAddDishToMenuModal();
     this.initEditDishModal(); 
-    this.initDeleteDishModal();
+    // this.initDeleteDishModal();
     this.initNotifications();
+    this.initDeleteDishFromMenuModal()
 
 
     document.addEventListener('dragover', (evt) => {
@@ -448,7 +477,8 @@ export default class App {
             name: dish.name,
             typeID: dish.type_id,
             position: dish.position,
-            type: dish.type
+            type: dish.type,
+            menuID: menu.menuID
           });
           console.log(dish.name);
         

@@ -247,9 +247,13 @@ export default class AppModel {
     }) {
         try{
             const deleteDishResponse = await fetch(
-                `http://localhost:4321/dishes/${dishID, menuID}`,
+                `http://localhost:4321/dishes`,
                 {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    body: JSON.stringify({dishID, menuID}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
             ); // get запрос по-умолчанию
 

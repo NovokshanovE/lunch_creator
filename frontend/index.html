@@ -38,12 +38,25 @@
       </li>
     </ul>
   </main>
+  
   <dialog class="app-modal" id="modal-add-dish">
     <form class="app-modal__form">
       <label for="modal-add-dish-input" class="app-modal__question" id="label_add_element_to_menu">
         Выберите блюдо:
       </label>
       <!-- <input type="text" name="" id="modal-add-dish-input" class="app-modal__input"> -->
+      <div class="app-modal__controls">
+        <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
+        <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog class="app-modal" id="modal-add-dish-to-base">
+    <form class="app-modal__form">
+      <label for="modal-add-dish-input" class="app-modal__question" id="label_add_element">
+        Задайте параметры:
+      </label>
+      <input type="text" name="" id="modal-add-dish-input" class="app-modal__input">
       <div class="app-modal__controls">
         <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
         <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>

@@ -4,20 +4,22 @@ export default class Dish {
   #dishPosition = -1;
   #dishType = '';
   #dishTypeID = null
+  #menuID = null;
   constructor({
     dishID = null,
     name,
     position,
     typeID = null,
-    type
+    type,
+    menuID = null
   }) {
-
     this.#dishID = dishID || crypto.randomUUID();
     this.#dishName = name;
     this.#dishPosition = position;
     this.#dishTypeID = typeID;
     this.#dishType = type
-    console.log(this.#dishName);
+    this.#menuID = menuID;
+    console.log(this.#menuID);
   }
 
   get dishID() { return this.#dishID; }
@@ -27,6 +29,14 @@ export default class Dish {
     if (typeof value === 'string') {
       this.#dishName = value;
     }
+  }
+
+  set menuID(value){
+    this.#menuID = value;
+  }
+
+  get menuID(){
+    return this.#menuID;
   }
 
   get dishPosition() { return this.#dishPosition; }
@@ -72,7 +82,7 @@ export default class Dish {
     deleteBtn.classList.add('dish__contol-btn', 'delete-icon');
     deleteBtn.addEventListener('click', () => {
       localStorage.setItem('deleteDishID', this.#dishID);
-
+      localStorage.setItem('deleteDishFromMenuID', this.#menuID);
       const deleteDishModal = document.getElementById('modal-delete-dish');
       deleteDishModal.querySelector('.app-modal__question').innerHTML = `Задача '${this.#dishName}' будет удалена. Прододлжить?`;
 
