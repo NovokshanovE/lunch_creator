@@ -102,6 +102,45 @@ export default class Menu {
     
   };
 
+  appendNewDishToMenu = async ({ dishID }) => {
+    
+
+    try {
+      
+      const addDishResult = await AppModel.addDishToMenu({
+        dishID: dishID,
+        menuID: this.#menuID
+      });
+      
+      const menus = await AppModel.getMenu();
+      console.log(menus);
+      // for(const menu of menus){
+        
+
+      //   for( const dish of menu.dishes){
+      //     this.addNewDishLocal({
+      //       dishID: dish.dishID,
+      //       name: dish.name,
+      //       typeID: dish.type_id,
+      //       position: dish.position,
+      //       type: dish.type
+      //     });
+      //     console.log(dish.name);
+        
+      //   }
+      // }
+      this.render();
+
+
+      this.addNotification({ name: addDishResult.message, type: 'success'});
+    } catch (err) {
+      this.addNotification({ name: err.message, type: 'error'});
+      console.error(err);
+    }
+
+    
+  };
+
 
   addNewDishLocal = ({dishID = null,
     name,

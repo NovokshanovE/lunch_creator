@@ -176,8 +176,54 @@ export default class App {
     
   };
 
-  initAddDishModal() {
+
+  deleteDish = async ({ dishID }) => {
+    let fDish = null;
+    let fMenu = null;
+    for (let menu of this.#menus) {
+      fMenu = menu;
+      fDish = menu.getDishById({ dishID });
+      if (fDish) break;
+    }
+
+
+    try{
+      const deleteDishResult = await AppModel.deleteDish({ dishID });
+
+      fMenu.deleteDish({ dishID });
+      document.getElementById(dishID).remove();
+
+      this.addNotification({ name: deleteDishResult.message, type: 'success'});
+    } catch (err) {
+      this.addNotification({ name: err.message, type: 'error'});
+      console.error(err);
+    }
+
+    
+  };
+
+ async initAddDishToMenuModal() {
     const addDishModal = document.getElementById('modal-add-dish');
+    const dishes = await AppModel.getDishes();
+    const label_element = document.getElementById('label_add_element_to_menu');
+    console.log(dishes);
+
+    const selectElement = document.createElement('select');
+    const id_selected = crypto.randomUUID();
+    localStorage.setItem('selected_add_to_menu', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__input');
+    for(let dish of dishes){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = dish['name'];
+      optionElement.setAttribute('value', dish['dishID']);
+      selectElement.appendChild(optionElement);
+
+    }
+    label_element.after(selectElement);
+
+
+
     const cancelHandler = () => {
       addDishModal.close();
       localStorage.setItem('addDishMenuID', '');
@@ -185,11 +231,14 @@ export default class App {
     };
 
     const okHandler = () => {
-      const menuID = localStorage.getItem('addDishMenuID');
+      const menuID = localStorage.getItem(' ');
       const modalInput = addDishModal.querySelector('.app-modal__input');
-
+      const id_selected = localStorage.getItem('selected_add_to_menu');
+      const selectElement = document.getElementById(id_selected);
+      const dishID = String(selectElement.value);
+      console.log(dishID);
       if(menuID && modalInput.value){
-        this.#menus.find(menu => menu.menuID === menuID).appendNewDish({ name: modalInput.value});
+        this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
 
       }
 
@@ -227,6 +276,29 @@ export default class App {
   }
 
   initDeleteDishModal() {
+    const deleteDishModal = document.getElementById('modal-delete-dish');
+    const cancelHandler = () => {
+      deleteDishModal.close();
+      localStorage.setItem('deleteDishID', '');
+    };
+
+    const okHandler = () => {
+      const dishID = localStorage.getItem('deleteDishID');
+
+      if(dishID){
+        this.deleteDish({dishID});
+
+      }
+
+      cancelHandler();
+    };
+
+    deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    deleteDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    deleteDishModal.addEventListener('close', cancelHandler);
+  }
+
+  initDeleteDishFromMenuModal() {
     const deleteDishModal = document.getElementById('modal-delete-dish');
     const cancelHandler = () => {
       deleteDishModal.close();
@@ -299,7 +371,7 @@ export default class App {
           : document.body.classList.remove('dark-theme'));
       });
 
-    this.initAddDishModal();
+    this.initAddDishToMenuModal();
     this.initEditDishModal(); 
     this.initDeleteDishModal();
     this.initNotifications();

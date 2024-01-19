@@ -50,7 +50,6 @@ app.get('/menu', async (req, res) => {
             dishID: id, type, name, position, type_id
         })); 
         
-        console.log(dishes);
         const menu = dbmenu.map(menu => ({
             menuID: menu.id,
             variant: menu.variant,
@@ -62,6 +61,31 @@ app.get('/menu', async (req, res) => {
         res.statusCode = 200;
         res.statusMessage = 'OK';
         res.json({ menu });
+
+
+    } catch (err) {
+        res.statusCode = 500;
+        res.statusMessage = 'Internal server error';
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: 500,
+            message: `Getting menu and dishes error: ${ err.error}`
+        });
+    }
+});
+
+app.get('/dishes', async (req, res) => {
+    try {
+        
+        const [dbDishes] = await Promise.all([db.getDishes()]);
+        
+        const dishes = dbDishes.map(({id, type, name, position, type_id}) => ({
+            dishID: id, type, name, position, type_id
+        })); 
+        
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.json({ dishes });
 
 
     } catch (err) {

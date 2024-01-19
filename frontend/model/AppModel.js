@@ -20,6 +20,25 @@ export default class AppModel {
         }
     }
 
+    static async getDishes() {
+        try{
+            const dishesResponse = await fetch('http://localhost:4321/dishes'); // get запрос по-умолчанию
+            const dishesBody = await dishesResponse.json();
+
+            if(dishesResponse.status !== 200){
+                return Promise.reject(dishesBody);
+            }
+
+            return dishesBody.dishes;
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
+
 
     static async addMenu({ menuID, variant = -1, day} = {
         menuID: null,
@@ -97,10 +116,10 @@ export default class AppModel {
     }) {
         try{
             const addDishResponse = await fetch(
-                'http://localhost:4321/dishes',
+                `http://localhost:4321/dishes/${dishID}`,
                 {
                     method: 'POST',
-                    body: JSON.stringify({dishID, menuID}),
+                    body: JSON.stringify({menuID}),
                     headers: {
                         'Content-Type': 'application/json'
                     }

@@ -337,6 +337,14 @@ body.dark-theme {
 
 }
 
+select {
+  padding: 0.6vw;
+  border-radius: 0.7vw;
+  font-size: clamp(0.7rem, 1.5vw, 1.5vw);
+  color: var(--black-color);
+  border: 2px solid var(--black-color)
+}
+
 .app-modal__controls {
   display: flex;
   justify-self: center;
