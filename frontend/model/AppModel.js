@@ -63,7 +63,7 @@ export default class AppModel {
     }) {
         try{
             const addDishResponse = await fetch(
-                'http://localhost:4321/dishs',
+                'http://localhost:4321/dishes',
                 {
                     method: 'POST',
                     body: JSON.stringify({dishID, name, typeID}),
@@ -97,7 +97,7 @@ export default class AppModel {
     }) {
         try{
             const addDishResponse = await fetch(
-                'http://localhost:4321/dishs',
+                'http://localhost:4321/dishes',
                 {
                     method: 'POST',
                     body: JSON.stringify({dishID, menuID}),
@@ -132,7 +132,7 @@ export default class AppModel {
     }) {
         try{
             const updateDishResponse = await fetch(
-                `http://localhost:4321/dishs/${dishID}`,
+                `http://localhost:4321/dishes/${dishID}`,
                 {
                     method: 'PATCH',
                     body: JSON.stringify({name, typeID}),
@@ -165,7 +165,7 @@ export default class AppModel {
     }) {
         try{
             const updateDishsResponse = await fetch(
-                `http://localhost:4321/dishs`,
+                `http://localhost:4321/dishes`,
                 {
                     method: 'PATCH',
                     body: JSON.stringify({ reordereddishes}),
@@ -198,7 +198,7 @@ export default class AppModel {
     }) {
         try{
             const deleteDishResponse = await fetch(
-                `http://localhost:4321/dishs/${dishID}`,
+                `http://localhost:4321/dishes/${dishID}`,
                 {
                     method: 'DELETE'
                 }
@@ -228,7 +228,7 @@ export default class AppModel {
     }) {
         try{
             const deleteDishResponse = await fetch(
-                `http://localhost:4321/dishs/${dishID, menuID}`,
+                `http://localhost:4321/dishes/${dishID, menuID}`,
                 {
                     method: 'DELETE'
                 }
@@ -260,7 +260,7 @@ export default class AppModel {
     }) {
         try{
             const moveDishResponse = await fetch(
-                `http://localhost:4321/Menu`,
+                `http://localhost:4321/menu`,
                 {
                     method: 'PATCH',
                     body: JSON.stringify({dishID, srcmenuID, destmenuID}),

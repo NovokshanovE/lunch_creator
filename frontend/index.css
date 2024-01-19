@@ -24,8 +24,8 @@
   --main-bg-end-color: var(--seawave-30-color);
   --main-header-text-color: var(--blue-70-color);
   --shadow-color: #00000029;
-  --tasklist-bg-color: #cbdff4bf;
-  --tasklist-last-bg-color: #cbdff473;
+  --menu-bg-color: #cbdff4bf;
+  --menu-last-bg-color: #cbdff473;
 }
 
 * {
@@ -143,7 +143,7 @@ body.dark-theme {
   margin-bottom: 3vh;
 }
 
-.tasklists-list {
+.menus-list {
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -153,40 +153,40 @@ body.dark-theme {
   column-gap: calc(8% / 3);
 }
 
-.tasklists-list__item {
-  width: 23%;
+.menus-list__item {
+  width: 20%;
   box-sizing: border-box;
   border-radius: 1vw;
   padding: 1vw 1.2vw;
   box-shadow: 2px 2px 4px var(--shadow-color);
-  background-color: var(--tasklist-bg-color);
-  border: 2px solid var(--tasklist-bg-color);
+  background-color: var(--menu-bg-color);
+  border: 2px solid var(--menu-bg-color);
 }
 
-.tasklist.tasklist_droppable {
+.menu.menu_droppable {
   border: 2px dashed var(--blue-50-color);
 }
 
-.tasklist__name {
+.menu__name {
   font-size: clamp(0.75rem, 2vw, 2rem);
   font-weight: 600;
   margin-bottom: 1vw;
   color: var(--blue-70-color);
 }
 
-.tasklist__add-task-btn {
+.menu__add-dish-btn {
   border: none;
   background: none;
   font-size: clamp(0.7rem, 1.5vw, 1.5rem);
   color: var(--dark-grey-color);
 }
 
-.tasklist__add-task-btn:hover {
+.menu__add-dish-btn:hover {
   font-weight: 600;
   cursor: pointer;
 }
 
-.task {
+.dish {
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -203,34 +203,34 @@ body.dark-theme {
   cursor: move;
 }
 
-.task:hover {
+.dish:hover {
   background-color: var(--blue-30-color);
   border-color: var(--blue-70-color);
 }
 
-.task__text {
+.dish__text {
   overflow-wrap: anywhere;
   font-size: clamp(0.7rem, 1.5vw, 1.5rem);
 }
 
-.task__controls-row {
+.dish__controls-row {
   display: flex;
   justify-content: center;
   gap: calc(2vw / 3);
 }
 
-/* .task__controls-row:first-child {
+/* .dish__controls-row:first-child {
   margin-bottom: calc(2vw / 3);
 } */
 
-.task__contol-btn {
+.dish__contol-btn {
   width: 2vw;
   height: 2vw;
   opacity: 0.6;
   border: none;
 }
 
-.task__contol-btn:hover {
+.dish__contol-btn:hover {
   opacity: 1;
   cursor: pointer;
 }
@@ -251,26 +251,26 @@ body.dark-theme {
   background: url(assets/delete-button.svg) center / cover;
 }
 
-.tasklist:first-child .left-arrow-icon {
+.menu:first-child .left-arrow-icon {
   display: none;
 }
 
-.tasklist:nth-last-child(2) .right-arrow-icon {
+.menu:nth-last-child(2) .right-arrow-icon {
   display: none;
 }
 
-.tasklist-adder {
-  background-color: var(--tasklist-last-bg-color);
-  border-color: var(--tasklist-last-bg-color);
+.menu-adder {
+  background-color: var(--menu-last-bg-color);
+  border-color: var(--menu-last-bg-color);
   transition: background-color 1s ease;
 }
 
-.tasklist-adder:hover {
-  background-color: var(--tasklist-bg-color);
-  border-color: var(--tasklist-bg-color);
+.menu-adder:hover {
+  background-color: var(--menu-bg-color);
+  border-color: var(--menu-bg-color);
 }
 
-.tasklist-adder__btn {
+.menu-adder__btn {
   border: none;
   background: none;
   font-weight: 400;
@@ -278,12 +278,12 @@ body.dark-theme {
   color: var(--blue-70-color);
 }
 
-.tasklist-adder__btn:hover {
+.menu-adder__btn:hover {
   font-weight: 600;
   cursor: pointer;
 }
 
-.tasklist-adder__input {
+.menu-adder__input {
   display: none;
   box-sizing: border-box;
   border: none;
@@ -297,12 +297,12 @@ body.dark-theme {
   opacity: 0.7;
 }
 
-.tasklist-adder__input:hover,
-.tasklist-adder__input:focus {
+.menu-adder__input:hover,
+.menu-adder__input:focus {
   opacity: 1;
 }
 
-.task.task_selected {
+.dish.dish_selected {
   opacity: 0.6;
 }
 

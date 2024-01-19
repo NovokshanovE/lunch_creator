@@ -67,7 +67,7 @@ export default class DB {
     async getDishes(){
         try {
             const dishes = await this.#dbClient.query(
-                'select dishes.id, type, name, position from dishes join types t on t.id = dishes.type_id order by position;'
+                'select dishes.id, type_id, type, name, position from dishes join types t on t.id = dishes.type_id order by position;'
 
             );
             return dishes.rows;
@@ -221,7 +221,7 @@ export default class DB {
         typeID: null,
     }){
         if((!name && !typeID) || !dishID){
-            const errMsg = `Update dish error: wrong params (id: ${dishID}, name: ${text}, typeID: ${position})`;
+            const errMsg = `Update dish error: wrong params (id: ${dishID}, name: ${name}, typeID: ${position})`;
             console.error(errMsg);
             return Promise.reject({
                 type: 'client',
@@ -289,7 +289,7 @@ export default class DB {
             );
 
         } catch (error) {
-            console.error('Unable delete task, error: ', error);
+            console.error('Unable delete dish, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error
@@ -326,7 +326,7 @@ export default class DB {
             );
 
         } catch (error) {
-            console.error('Unable delete task, error: ', error);
+            console.error('Unable delete dish, error: ', error);
             return Promise.reject({
                 type: 'internal',
                 error

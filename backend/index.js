@@ -46,8 +46,8 @@ app.get('/menu', async (req, res) => {
         
         const [dbmenu, dbDishes] = await Promise.all([db.getMenu(),db.getDishes()]);
         
-        const dishes = dbDishes.map(({id, type, name, position}) => ({
-            dishID: id, type, name, position
+        const dishes = dbDishes.map(({id, type, name, position, type_id}) => ({
+            dishID: id, type, name, position, type_id
         })); 
         
         console.log(dishes);
@@ -228,7 +228,7 @@ app.patch('/dishes', async ( req, res) => {
     try{
         const { reordereddishes } = req.body;
 
-        await Promise.all(reordereddishes.map(({ dishID, taskID}) => db.updateTask({ dishID,  taskID})));
+        await Promise.all(reordereddishes.map(({ dishID, typeID}) => db.updateTask({ dishID,  typeID})));
         
         res.statusCode = 200;
         res.statusMessage = 'OK';
@@ -253,7 +253,7 @@ app.patch('/dishes', async ( req, res) => {
     }
 });
 
-// delete task
+// delete dish
 app.delete('/dishes/:dishID', async (req, res) => {
     try{
         const { dishID } = req.params;
@@ -313,7 +313,7 @@ app.delete('/dishes', async (req, res) => {
 
 
 
-// move task between menu
+// move dish between menu
 app.patch('/menu', async (req, res) => {
     try{
         const {dishID, srcmenuID, destmenuID } = req.body;
@@ -337,7 +337,7 @@ app.patch('/menu', async (req, res) => {
         res.json({
             timestamp: new Date().toISOString(),
             statusCode: res.statusCode,
-            message: `Move task error: ${ err.error}`
+            message: `Move dish error: ${ err.error}`
         });
     }
 })
@@ -358,7 +358,7 @@ const server = app.listen(Number(appPort), appHost, async () => {
 
     console.log(await db.getMenu());
     // await db.moveTask({
-    //     taskID: '8384e864-d359-4c38-b3a8-1e0dd929cbd0',
+    //     dishID: '8384e864-d359-4c38-b3a8-1e0dd929cbd0',
     //     srcmenuID: 'bdde8b73-e5d3-4972-91cc-fab71967f55c',
     //     destmenuID: 'e550ac89-c93c-4944-aee5-9f4d65e9b7c7'
     // });

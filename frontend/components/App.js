@@ -1,16 +1,16 @@
-import Dishlist from './Dishlist';
+import Menu from './Menu';
 import AppModel from '../model/AppModel.js';
 
 export default class App {
-  #tasklists = [];
+  #menus = [];
 
   onEscapeKeydown = (event) => {
     if (event.key === 'Escape') {
-      const input = document.querySelector('.tasklist-adder__input');
+      const input = document.querySelector('.menu-adder__input');
       input.style.display = 'none';
       input.value = '';
 
-      document.querySelector('.tasklist-adder__btn')
+      document.querySelector('.menu-adder__btn')
         .style.display = 'inherit';
     }
   };
@@ -20,32 +20,32 @@ export default class App {
 
     if (event.target.value) {
 
-      const tasklistID = crypto.randomUUID();
+      const menuID = crypto.randomUUID();
 
       try{
-        const addDishlistResult = await AppModel.addDishLists({
-          tasklistID,
+        const addMenuResult = await AppModel.addMenu({
+          menuID,
           name: event.target.value,
-          position: this.#tasklists.length
+          variant: this.#menus.length
         });
 
-        const  newDishlist = new Dishlist({
-          tasklistID,
+        const  newMenu = new Menu({
+          menuID,
           name: event.target.value,
-          position: this.#tasklists.length,
-          onDropDishInDishlist: this.onDropDishInDishlist,
+          variant: this.#menus.length,
+          onDropDishInMenu: this.onDropDishInMenu,
           addNotification: this.addNotification
   
         });
 
-        this.#tasklists.push(newDishlist);
-        newDishlist.render();
+        this.#menus.push(newMenu);
+        newMenu.render();
 
         
-        this.addNotification({ text: addDishlistResult.message, type: 'success'});
+        this.addNotification({ name: addMenuResult.message, type: 'success'});
 
       } catch (err) {
-        this.addNotification({ text: err.message, type: 'error'});
+        this.addNotification({ name: err.message, type: 'error'});
         console.error(err);
 
       };
@@ -56,89 +56,94 @@ export default class App {
     event.target.style.display = 'none';
     event.target.value = '';
 
-    document.querySelector('.tasklist-adder__btn')
+    document.querySelector('.menu-adder__btn')
       .style.display = 'inherit';
   };
 
-  onDropDishInDishlist = async (evt) => {
+  onDropDishInMenu = async (evt) => {
     evt.stopPropagation();
 
-    const destDishlistElement = evt.currentTarget;
-    destDishlistElement.classList.remove('tasklist_droppable');
+    const destMenuElement = evt.currentTarget;
+    destMenuElement.classList.remove('menu_droppable');
 
     const movedDishID = localStorage.getItem('movedDishID');
-    const srcDishlistID = localStorage.getItem('srcDishlistID');
-    const destDishlistID = destDishlistElement.getAttribute('id');
+    const srcmenuID = localStorage.getItem('srcmenuID');
+    const destmenuID = destMenuElement.getAttribute('id');
 
     localStorage.setItem('movedDishID', '');
-    localStorage.setItem('srcDishlistID', '');
+    localStorage.setItem('srcmenuID', '');
 
-    if (!destDishlistElement.querySelector(`[id="${movedDishID}"]`)) return;
+    if (!destMenuElement.querySelector(`[id="${movedDishID}"]`)) return;
 
-    const srcDishlist = this.#tasklists.find(tasklist => tasklist.tasklistID === srcDishlistID);
-    const destDishlist = this.#tasklists.find(tasklist => tasklist.tasklistID === destDishlistID);
+    const srcMenu = this.#menus.find(menu => menu.menuID === srcmenuID);
+    const destMenu = this.#menus.find(menu => menu.menuID === destmenuID);
     
     try {
       
-      if (srcDishlistID !== destDishlistID) {
+      if (srcmenuID !== destmenuID) {
+        console.log({
+          dishID: movedDishID,
+          srcmenuID,
+          destmenuID
+        });
         
         await AppModel.moveDish({
-          taskID: movedDishID,
-          srcDishlistID,
-          destDishlistID
+          dishID: movedDishID,
+          srcmenuID,
+          destmenuID
         });
         // console.log('hqwjqjwq');
-        const movedDish = srcDishlist.deleteDish({ taskID: movedDishID });
-        destDishlist.pushDish({ task: movedDish });
+        const movedDish = srcMenu.deleteDish({ dishID: movedDishID });
+        destMenu.pushDish({ dish: movedDish });
   
-        await srcDishlist.reorderDishs();
+        // await srcMenu.reorderDishes();
         // console.log('hqwjqjwq');
       }
   
-      await destDishlist.reorderDishs();
+      // await destMenu.reorderDishes();
       // console.log('hqwjqjwq');
 
       
-      this.addNotification({ text: `Dish (ID: ${movedDishID}) move between tasklists`, type: 'success'});
+      this.addNotification({ name: `Dish (ID: ${movedDishID}) move between menus`, type: 'success'});
     } catch(err) {
-      this.addNotification({ text: err.message, type: 'error'});
+      this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
 
     }
     // const destDishsIDs = Array.from(
-    //   destDishlistElement.querySelector('.tasklist__tasks-list').children,
+    //   destMenuElement.querySelector('.menu__dishes-list').children,
     //   elem => elem.getAttribute('id')
     // );
 
-    // destDishsIDs.forEach((taskID, position) => {
-    //   destDishlist.getDishById({ taskID }).taskPosition = position;
+    // destDishsIDs.forEach((dishID, position) => {
+    //   destMenu.getDishById({ dishID }).dishPosition = position;
     // });
 
-    // console.log(this.#tasklists);
+    // console.log(this.#menus);
   };
 
  
 
-  editDish = async ({ taskID, newDishName }) => {
+  editDish = async ({ dishID, newDishName }) => {
     let fDish = null;
-    for (let tasklist of this.#tasklists) {
-      fDish = tasklist.getDishById({ taskID });
+    for (let menu of this.#menus) {
+      fDish = menu.getDishById({ dishID });
       if (fDish) break;
     }
 
-    const curDishName = fDish.taskName;
+    const curDishName = fDish.dishName;
     if (!newDishName || newDishName === curDishName) return;
 
     try{
-      const updateDishResult = await AppModel.updateDish({ taskID, text: newDishName});
+      const updateDishResult = await AppModel.updateDish({ dishID, name: newDishName});
 
-      fDish.taskName = newDishName;
-      document.querySelector(`[id="${taskID}"] span.task__text`).innerHTML = newDishName;
+      fDish.dishName = newDishName;
+      document.querySelector(`[id="${dishID}"] span.dish__text`).innerHTML = newDishName;
 
       console.log(updateDishResult);
-      this.addNotification({ text: updateDishResult.message, type: 'success'});
+      this.addNotification({ name: updateDishResult.message, type: 'success'});
     } catch (err) {
-      this.addNotification({ text: err.message, type: 'error'});
+      this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
 
     }
@@ -146,25 +151,25 @@ export default class App {
     
   };
 
-  deleteDish = async ({ taskID }) => {
+  deleteDish = async ({ dishID }) => {
     let fDish = null;
-    let fDishlist = null;
-    for (let tasklist of this.#tasklists) {
-      fDishlist = tasklist;
-      fDish = tasklist.getDishById({ taskID });
+    let fMenu = null;
+    for (let menu of this.#menus) {
+      fMenu = menu;
+      fDish = menu.getDishById({ dishID });
       if (fDish) break;
     }
 
 
     try{
-      const deleteDishResult = await AppModel.deleteDish({ taskID });
+      const deleteDishResult = await AppModel.deleteDish({ dishID });
 
-      fDishlist.deleteDish({ taskID });
-      document.getElementById(taskID).remove();
+      fMenu.deleteDish({ dishID });
+      document.getElementById(dishID).remove();
 
-      this.addNotification({ text: deleteDishResult.message, type: 'success'});
+      this.addNotification({ name: deleteDishResult.message, type: 'success'});
     } catch (err) {
-      this.addNotification({ text: err.message, type: 'error'});
+      this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
     }
 
@@ -172,19 +177,19 @@ export default class App {
   };
 
   initAddDishModal() {
-    const addDishModal = document.getElementById('modal-add-task');
+    const addDishModal = document.getElementById('modal-add-dish');
     const cancelHandler = () => {
       addDishModal.close();
-      localStorage.setItem('addDishDishlistID', '');
+      localStorage.setItem('addDishMenuID', '');
       addDishModal.querySelector('.app-modal__input').value = '';
     };
 
     const okHandler = () => {
-      const tasklistID = localStorage.getItem('addDishDishlistID');
+      const menuID = localStorage.getItem('addDishMenuID');
       const modalInput = addDishModal.querySelector('.app-modal__input');
 
-      if(tasklistID && modalInput.value){
-        this.#tasklists.find(tasklist => tasklist.tasklistID === tasklistID).appendNewDish({ text: modalInput.value});
+      if(menuID && modalInput.value){
+        this.#menus.find(menu => menu.menuID === menuID).appendNewDish({ name: modalInput.value});
 
       }
 
@@ -197,7 +202,7 @@ export default class App {
   }
 
   initEditDishModal() {
-    const editDishModal = document.getElementById('modal-edit-task');
+    const editDishModal = document.getElementById('modal-edit-dish');
     const cancelHandler = () => {
       editDishModal.close();
       localStorage.setItem('editDishID', '');
@@ -205,11 +210,11 @@ export default class App {
     };
 
     const okHandler = () => {
-      const taskID = localStorage.getItem('editDishID');
+      const dishID = localStorage.getItem('editDishID');
       const modalInput = editDishModal.querySelector('.app-modal__input');
 
-      if(taskID && modalInput.value){
-        this.editDish({taskID, newDishName: modalInput.value});
+      if(dishID && modalInput.value){
+        this.editDish({dishID, newDishName: modalInput.value});
 
       }
 
@@ -222,17 +227,17 @@ export default class App {
   }
 
   initDeleteDishModal() {
-    const deleteDishModal = document.getElementById('modal-delete-task');
+    const deleteDishModal = document.getElementById('modal-delete-dish');
     const cancelHandler = () => {
       deleteDishModal.close();
       localStorage.setItem('deleteDishID', '');
     };
 
     const okHandler = () => {
-      const taskID = localStorage.getItem('deleteDishID');
+      const dishID = localStorage.getItem('deleteDishID');
 
-      if(taskID){
-        this.deleteDish({taskID});
+      if(dishID){
+        this.deleteDish({dishID});
 
       }
 
@@ -251,7 +256,7 @@ export default class App {
   }
 
 
-  addNotification = ({text, type}) => {
+  addNotification = ({name, type}) => {
     const notifications = document.getElementById('app-notifications');
 
     const notificationID = crypto.randomUUID();
@@ -262,7 +267,7 @@ export default class App {
     );
 
     notification.setAttribute('id', notificationID);
-    notification.innerHTML = text;
+    notification.innerHTML = name;
 
     notifications.appendChild(notification);
 
@@ -270,13 +275,13 @@ export default class App {
   };
 
   async init() {
-    document.querySelector('.tasklist-adder__btn')
+    document.querySelector('.menu-adder__btn')
       .addEventListener(
         'click',
         (event) => {
           event.target.style.display = 'none';
 
-          const input = document.querySelector('.tasklist-adder__input');
+          const input = document.querySelector('.menu-adder__input');
           input.style.display = 'inherit';
           input.focus();
         }
@@ -284,7 +289,7 @@ export default class App {
 
     document.addEventListener('keydown', this.onEscapeKeydown);
 
-    document.querySelector('.tasklist-adder__input')
+    document.querySelector('.menu-adder__input')
       .addEventListener('keydown', this.onInputKeydown);
 
     document.getElementById('theme-switch')
@@ -303,80 +308,83 @@ export default class App {
     document.addEventListener('dragover', (evt) => {
       evt.preventDefault();
 
-      const draggedElement = document.querySelector('.task.task_selected');
-      const draggedElementPrevList = draggedElement.closest('.tasklist');
+      const draggedElement = document.querySelector('.dish.dish_selected');
+      const draggedElementPrevList = draggedElement.closest('.menu');
 
       const currentElement = evt.target;
-      const prevDroppable = document.querySelector('.tasklist_droppable');
+      const prevDroppable = document.querySelector('.menu_droppable');
       let curDroppable = evt.target;
-      while (!curDroppable.matches('.tasklist') && curDroppable !== document.body) {
+      while (!curDroppable.matches('.menu') && curDroppable !== document.body) {
         curDroppable = curDroppable.parentElement;
       }
 
       if (curDroppable !== prevDroppable) {
-        if (prevDroppable) prevDroppable.classList.remove('tasklist_droppable');
+        if (prevDroppable) prevDroppable.classList.remove('menu_droppable');
 
-        if (curDroppable.matches('.tasklist')) {
-          curDroppable.classList.add('tasklist_droppable');
+        if (curDroppable.matches('.menu')) {
+          curDroppable.classList.add('menu_droppable');
         }
       }
 
-      if (!curDroppable.matches('.tasklist') || draggedElement === currentElement) return;
+      if (!curDroppable.matches('.menu') || draggedElement === currentElement) return;
 
       if (curDroppable === draggedElementPrevList) {
-        if (!currentElement.matches('.task')) return;
+        if (!currentElement.matches('.dish')) return;
 
         const nextElement = (currentElement === draggedElement.nextElementSibling)
           ? currentElement.nextElementSibling
           : currentElement;
 
-        curDroppable.querySelector('.tasklist__tasks-list')
+        curDroppable.querySelector('.menu__dishes-list')
           .insertBefore(draggedElement, nextElement);
 
         return;
       }
 
-      if (currentElement.matches('.task')) {
-        curDroppable.querySelector('.tasklist__tasks-list')
+      if (currentElement.matches('.dish')) {
+        curDroppable.querySelector('.menu__dishes-list')
           .insertBefore(draggedElement, currentElement);
 
         return;
       }
 
-      if (!curDroppable.querySelector('.tasklist__tasks-list').children.length) {
-        curDroppable.querySelector('.tasklist__tasks-list')
+      if (!curDroppable.querySelector('.menu__dishes-list').children.length) {
+        curDroppable.querySelector('.menu__dishes-list')
           .appendChild(draggedElement);
       }
     });
 
     try{
-      const tasklists = await AppModel.getDishLists();
-      
-      for(const tasklist of tasklists){
-        const tasklistObj = new Dishlist({
-          tasklistID: tasklist.tasklistID,
-          name: tasklist.name,
-          position: tasklist.position,
-          onDropDishInDishlist: this.onDropDishInDishlist,
+      const menus = await AppModel.getMenu();
+      console.log(menus);
+      for(const menu of menus){
+        const menuObj = new Menu({
+          menuID: menu.menuID,
+          day: menu.day,
+          variant: menu.variant,
+          onDropDishInMenu: this.onDropDishInMenu,
           addNotification: this.addNotification
           // onEditDish: this.onEditDish,
         });
 
-        this.#tasklists.push(tasklistObj);
-        tasklistObj.render();
+        this.#menus.push(menuObj);
+        menuObj.render();
 
-        for( const task of tasklist.tasks){
-          tasklistObj.addNewDishLocal({
-            taskID: task.taskID,
-            text: task.text,
-            position: task.position
+        for( const dish of menu.dishes){
+          menuObj.addNewDishLocal({
+            dishID: dish.dishID,
+            name: dish.name,
+            typeID: dish.type_id,
+            position: dish.position,
+            type: dish.type
           });
+          console.log(dish.name);
         
         }
       }
 
     } catch( err) {
-      this.addNotification({ text: err.message, type: 'error'});
+      this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
     }
   }
