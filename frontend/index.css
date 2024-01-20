@@ -427,3 +427,21 @@ select {
   font-size: clamp(1rem, 2.7vw, 3.2rem);
   color: var(--main-header-text-color);
 }
+
+.menu__contol-btn {
+  width: 2vw;
+  height: 2vw;
+  opacity: 0.6;
+  border: none;
+}
+
+.menu__contol-btn:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.menu__controls-row {
+  display: flex;
+  justify-content: center;
+  gap: calc(2vw / 3);
+}

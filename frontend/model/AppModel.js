@@ -260,6 +260,34 @@ export default class AppModel {
             });
         }
     }
+    static async deleteMenu({menuID } = {
+        menuID: null
+    }) {
+        try{
+            const deleteDishResponse = await fetch(
+                `http://localhost:4321/menu/${menuID}`,
+                {
+                    method: 'DELETE'
+                }
+            ); // get запрос по-умолчанию
+
+            if(deleteDishResponse.status !== 200){
+                const deleteDishBody = await deleteDishResponse.json();
+                return Promise.reject(deleteDishBody);
+            }
+
+            return {
+                timestamp: new Date().toISOString(),
+                message: `Menu (ID = '${menuID}') was successfully delete from menu list`
+            };
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
 
     static async deleteDishFromMenu({dishID, menuID} = {
         dishID: null,

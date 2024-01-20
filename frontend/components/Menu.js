@@ -203,10 +203,44 @@ export default class Menu {
       () => localStorage.setItem('srcmenuID', this.#menuID)
     );
     liElement.addEventListener('drop', this.onDropDishInMenu);
+    const menuHeader = document.createElement('li');
+    menuHeader.classList.add('menu__header');
 
+
+    
     const h2Element = document.createElement('h2');
     h2Element.classList.add('menu__name');
     h2Element.innerHTML = this.#menuDay + " Вариант №"+this.#menuVariant;
+
+    const controlsDiv = document.createElement('div');
+    controlsDiv.classList.add('menu__controls');
+    const lowerRowDiv = document.createElement('div');
+    lowerRowDiv.classList.add('menu__controls-row');
+    const editBtn = document.createElement('button');
+    editBtn.setAttribute('type', 'button');
+    editBtn.classList.add('menu__contol-btn', 'edit-icon');
+    editBtn.addEventListener('click', () => {
+      // localStorage.setItem('editTaskID', this.#taskID);
+      // document.getElementById('modal-edit-task').showModal();
+    });
+    lowerRowDiv.appendChild(editBtn);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.setAttribute('type', 'button');
+    deleteBtn.classList.add('menu__contol-btn', 'delete-icon');
+    deleteBtn.addEventListener('click', () => {
+      localStorage.setItem('delete_Menu', this.#menuID);
+      const deleteDishModal = document.getElementById('modal-delete-menu');
+      deleteDishModal.querySelector('.app-modal__question').innerHTML = `Menu '${this.#menuDay}' ${this.#menuVariant} будет удалено. Прододлжить?`;
+
+      deleteDishModal.showModal();
+
+
+      
+    });
+    lowerRowDiv.appendChild(deleteBtn);
+    controlsDiv.appendChild(lowerRowDiv);
+    menuHeader.appendChild(controlsDiv);
+    liElement.appendChild(menuHeader);
     liElement.appendChild(h2Element);
 
     const innerUlElement = document.createElement('ul');

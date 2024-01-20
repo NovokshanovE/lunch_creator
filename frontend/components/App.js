@@ -156,7 +156,15 @@ export default class App {
 
     
   };
+  deleteMenu = async ({menuID}) => {
+    if(document.getElementById(menuID)){
+      document.getElementById(menuID).remove();
+    }
 
+    AppModel.deleteMenu({menuID});
+    
+    
+  }
   deleteDish = async ({ dishID }) => {
     console.log(dishID);
     let fDish = null;
@@ -571,6 +579,39 @@ export default class App {
   }
 
 
+  async initDeleteMenuModal() {
+    const deleteMenuModal = document.getElementById('modal-delete-menu');
+    //const menuID = localStorage.getItem('delete_Menu');
+    console
+    const cancelHandler = () => {
+      deleteMenuModal.close();
+      localStorage.setItem('deleteDishID', '');
+    };
+
+
+
+
+    const okHandler = () => {
+      const menuID = localStorage.getItem('delete_Menu');
+
+      
+        
+        // this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
+  
+      console.log("nwnklcnwlenklcnlkwnk----------------");
+      this.deleteMenu({menuID});
+
+      
+
+      cancelHandler();
+    };
+
+    deleteMenuModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    deleteMenuModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    deleteMenuModal.addEventListener('close', cancelHandler);
+  }
+
+
   addNotification = ({name, type}) => {
     const notifications = document.getElementById('app-notifications');
 
@@ -622,6 +663,7 @@ export default class App {
     this.initAddDishModal();
     this.initDeleteDishModal();
     this.initAddMenuModal();
+    this.initDeleteMenuModal();
     
 
     

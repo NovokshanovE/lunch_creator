@@ -302,6 +302,41 @@ export default class DB {
 
     }
 
+    async deleteMenu({
+        menuID
+    } = {
+        menuID: null
+    }){
+        if(!menuID){
+            const errMsg = `Delete menu error: wrong params (id: ${menuID})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+        console.log(menuID);
+        try {
+
+            
+            await this.#dbClient.query(
+                'delete from menu where id = $1;',
+                [menuID]
+
+            );
+            
+
+        } catch (error) {
+            console.error('Unable delete menu, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+
+    }
+
     async deleteDishFromMenu({
         dishID,
         menuID
