@@ -178,15 +178,27 @@ export default class App {
 
 
   deleteDishFromMenu = async ({ dishID }) => {
+    const menuID = localStorage.getItem('deleteDishFromMenuID');
+    let fDish = null;
+    let fMenu = null;
+    for (let menu of this.#menus) {
+      if(menu.menuID === menuID){
+        fMenu = menu;
+        fDish = menu.getDishById({ dishID });
 
+      }
+      
+      if (fDish) break;
+    }
     try{
-      const menuID = localStorage.getItem('deleteDishFromMenuID');
-      console.log("dID= ", dishID, "mID= ", menuID);
+
       const deleteDishResult = await AppModel.deleteDishFromMenu({ dishID , menuID});
 
-      this.#menus.find(menu => menu.menuID === menuID).render();
-      // document.getElementById(dishID).remove();
+      fMenu.deleteDish({ dishID });
+      document.getElementById(menuID).getElementsByClassName('menu__dishes-list')[0].children[dishID].remove();
 
+      this.addNotification({ name: deleteDishResult.message, type: 'success'});
+      
       this.addNotification({ name: deleteDishResult.message, type: 'success'});
     } catch (err) {
       this.addNotification({ name: err.message, type: 'error'});

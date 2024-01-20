@@ -33,28 +33,28 @@ export default class Menu {
 
     if (deleteDishIndex === -1) return;
 
-    const menus = await AppModel.getMenu();
-    // console.log(menus);
-    for(const menu of menus){
+    // const menus = await AppModel.getMenu();
+    // // console.log(menus);
+    // for(const menu of menus){
       
-
-      for( const dish of menu.dishes){
-        if(dish.dishID = dishID){
-          this.addNewDishLocal({
-            dishID: dish.dishID,
-            name: dish.name,
-            typeID: dish.type_id,
-            position: dish.position,
-            type: dish.type,
-            menuID: menu.menuID
-          });
-        }
+    //   if(menu.)
+    //   for( const dish of menu.dishes){
+    //     if(dish.dishID = dishID){
+    //       this.addNewDishLocal({
+    //         dishID: dish.dishID,
+    //         name: dish.name,
+    //         typeID: dish.type_id,
+    //         position: dish.position,
+    //         type: dish.type,
+    //         menuID: menu.menuID
+    //       });
+    //     }
         
 
-        // console.log(dish.name);
+    //     // console.log(dish.name);
       
-      }
-    }
+    //   }
+    // }
 
     const [deletedDish] = this.#dishes.splice(deleteDishIndex, 1);
 
@@ -150,7 +150,7 @@ export default class Menu {
                 type: dish.type,
                 menuID: menu.menuID
               });
-            }
+            }u
         }
         
           
