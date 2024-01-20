@@ -125,21 +125,26 @@ export default class App {
 
  
 
-  editDish = async ({ dishID, newDishName }) => {
+  editDish = async ({ dishID, newDishName, typeID }) => {
     let fDish = null;
     for (let menu of this.#menus) {
       fDish = menu.getDishById({ dishID });
       if (fDish) break;
     }
-
-    const curDishName = fDish.dishName;
-    if (!newDishName || newDishName === curDishName) return;
+    
+    // const curDishName = fDish.dishName();
+    if (!newDishName) return;
 
     try{
-      const updateDishResult = await AppModel.updateDish({ dishID, name: newDishName});
-
-      fDish.dishName = newDishName;
-      document.querySelector(`[id="${dishID}"] span.dish__text`).innerHTML = newDishName;
+      const updateDishResult = await AppModel.updateDish({ dishID: dishID, name: newDishName, typeID: typeID});
+      // console.log(dishID);
+      if(fDish){
+        fDish.dishName = newDishName;
+        document.querySelector(`[id="${dishID}"] span.dish__text`).innerHTML = newDishName;
+      }
+      
+      
+      
 
       // console.log(updateDishResult);
       this.addNotification({ name: updateDishResult.message, type: 'success'});
@@ -410,20 +415,69 @@ export default class App {
     addDishModal.addEventListener('close', cancelHandler);
   }
 
-  initEditDishModal() {
+  async initEditDishModal() {
     const editDishModal = document.getElementById('modal-edit-dish');
+    
+    
+    
+    const types = await AppModel.getTypes();
+    const input_element = document.getElementById('modal-edit-dish-input');
+    console.log(types);
+
+    const selectElement = document.createElement('select');
+    const id_selected = 'selected_edit_dish';//crypto.randomUUID();
+    localStorage.setItem('selected_edit_dish', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__select');
+    for(let type of types){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = type['type'];
+      optionElement.setAttribute('value', type['typeID']);
+      selectElement.appendChild(optionElement);
+
+    }
+    input_element.after(selectElement);
+
+    const dishes = await AppModel.getDishes();
+    // console.log(dishes);
+    
+    const selectElementDish = document.createElement('select');
+    const id_selected1 = 'selected_dish_update';crypto.randomUUID();//'selected_add_to_menu';
+    localStorage.setItem('selected_dish_update', id_selected1);
+    selectElementDish.setAttribute('id', id_selected1);
+    selectElementDish.setAttribute('class', 'app-modal__select');
+    for(let dish of dishes){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = `${dish['name']} [${dish['type']}]`;
+      optionElement.setAttribute('value', "_"+dish['dishID']);
+      selectElementDish.appendChild(optionElement);
+
+    }
+    input_element.before(selectElementDish);
+
+
+
+
+
     const cancelHandler = () => {
       editDishModal.close();
       localStorage.setItem('editDishID', '');
       editDishModal.querySelector('.app-modal__input').value = '';
+      location.reload();
     };
 
     const okHandler = () => {
-      const dishID = localStorage.getItem('editDishID');
+      // const dishID = localStorage.getItem('selected_dish_update');
       const modalInput = editDishModal.querySelector('.app-modal__input');
+      const id_selected = 'selected_edit_dish';//localStorage.getItem('selected_add_menu');
+      const selectElement = document.getElementById(id_selected);
+      const typeID = String(selectElement.options[selectElement.selectedIndex].value);
+      const id_selected1 = 'selected_dish_update';//localStorage.getItem('selected_add_menu');
+      const selectElement1 = document.getElementById(id_selected1);
+      const dishID = String(selectElement1.options[selectElement1.selectedIndex].value).replace('_','');
 
       if(dishID && modalInput.value){
-        this.editDish({dishID, newDishName: modalInput.value});
+        this.editDish({dishID, newDishName: modalInput.value, typeID});
 
       }
 

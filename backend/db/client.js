@@ -228,6 +228,9 @@ export default class DB {
                 error: new Error(errMsg)
             });
         }
+        console.log(dishID,
+            name,
+            typeID);
 
         let query = null;
         const queryParams = [];

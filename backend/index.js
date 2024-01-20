@@ -223,6 +223,7 @@ app.patch('/dishes/:dishID', async (req, res) => {
     try{
         const {dishID} = req.params;
         const { name, typeID} = req.body;
+        console.log({dishID, name, typeID});
         await db.updateDish({ dishID, name, typeID});
         res.statusCode = 200;
         res.statusMessage = 'OK';

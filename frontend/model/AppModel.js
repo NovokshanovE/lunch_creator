@@ -169,6 +169,7 @@ export default class AppModel {
         typeID: null
     }) {
         try{
+            console.log({dishID, name, typeID});
             const updateDishResponse = await fetch(
                 `http://localhost:4321/dishes/${dishID}`,
                 {
