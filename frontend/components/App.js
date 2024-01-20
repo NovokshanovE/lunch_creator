@@ -213,7 +213,7 @@ export default class App {
     const dishes = await AppModel.getDishes();
     const label_element = document.getElementById('label_add_element_to_menu');
     // console.log(dishes);
-
+    
     const selectElement = document.createElement('select');
     const id_selected = crypto.randomUUID();//'selected_add_to_menu';
     localStorage.setItem('selected_add_to_menu', id_selected);
@@ -280,8 +280,12 @@ export default class App {
     const cancelHandler = () => {
       addDishModal.close();
       localStorage.setItem('addDishMenuID', '');
-      localStorage.setItem('selected_add_dish', '');
+      
       addDishModal.querySelector('.app-modal__select').value = '';
+      const id_selected = localStorage.getItem('selected_add_dish');
+      const selectElement = document.getElementById(id_selected);
+      // selectElement.remove();
+      localStorage.setItem('selected_add_dish', '');
 
     };
 
@@ -293,8 +297,10 @@ export default class App {
       const name = modalInput.value;
       const dishID = crypto.randomUUID();
       await AppModel.addDish({dishID, name, typeID});
+      
+      // document.render;
       // document.getElementById('selected_add_to_menu').remove();
-      // this.initDeleteDishFromMenuModal
+      // this.initAddDish();
 
       //this.initAddDishToMenuModal();
 
