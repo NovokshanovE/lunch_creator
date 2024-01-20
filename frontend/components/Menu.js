@@ -18,6 +18,7 @@ export default class Menu {
     this.#menuVariant = variant;
     this.onDropDishInMenu = onDropDishInMenu;
     this.addNotification = addNotification
+    
   }
 
   get menuID() { return this.#menuID; }

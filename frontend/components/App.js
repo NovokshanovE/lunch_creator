@@ -7,11 +7,11 @@ export default class App {
   onEscapeKeydown = (event) => {
     if (event.key === 'Escape') {
       const input = document.querySelector('.menu-adder__input');
-      input.style.display = 'none';
-      input.value = '';
+      // input.style.display = 'none';
+      // input.value = '';
 
-      document.querySelector('.menu-adder__btn')
-        .style.display = 'inherit';
+      // document.querySelector('.menu-adder__btn')
+      //   .style.display = 'inherit';
     }
   };
 
@@ -56,8 +56,8 @@ export default class App {
     event.target.style.display = 'none';
     event.target.value = '';
 
-    document.querySelector('.menu-adder__btn')
-      .style.display = 'inherit';
+    // document.querySelector('.menu-adder__btn')
+    //   .style.display = 'inherit';
   };
 
   onDropDishInMenu = async (evt) => {
@@ -105,6 +105,7 @@ export default class App {
 
       
       this.addNotification({ name: `Dish (ID: ${movedDishID}) move between menus`, type: 'success'});
+      location.reload();
     } catch(err) {
       this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
@@ -152,6 +153,7 @@ export default class App {
   };
 
   deleteDish = async ({ dishID }) => {
+    console.log(dishID);
     let fDish = null;
     let fMenu = null;
     for (let menu of this.#menus) {
@@ -165,9 +167,14 @@ export default class App {
       const deleteDishResult = await AppModel.deleteDish({ dishID });
 
       fMenu.deleteDish({ dishID });
-      document.getElementById(dishID).remove();
+      console.log(dishID);
+      if(document.getElementById(dishID)){
+        document.getElementById(dishID).remove();
+      }
+        
 
       this.addNotification({ name: deleteDishResult.message, type: 'success'});
+
     } catch (err) {
       this.addNotification({ name: err.message, type: 'error'});
       console.error(err);
@@ -264,7 +271,7 @@ export default class App {
     console.log(types);
 
     const selectElement = document.createElement('select');
-    const id_selected = crypto.randomUUID();
+    const id_selected = 'selected_add_dish';//crypto.randomUUID();
     localStorage.setItem('selected_add_dish', id_selected);
     selectElement.setAttribute('id', id_selected);
     selectElement.setAttribute('class', 'app-modal__select');
@@ -291,12 +298,14 @@ export default class App {
 
     const okHandler = async () => {
       const modalInput = addDishModal.querySelector('.app-modal__input');
-      const id_selected = localStorage.getItem('selected_add_dish');
+      const id_selected = 'selected_add_dish';//localStorage.getItem('selected_add_dish');
       const selectElement = document.getElementById(id_selected);
+      console
       const typeID = String(selectElement.options[selectElement.selectedIndex].value);
       const name = modalInput.value;
       const dishID = crypto.randomUUID();
       await AppModel.addDish({dishID, name, typeID});
+      location.reload();
       
       // document.render;
       // document.getElementById('selected_add_to_menu').remove();
@@ -314,41 +323,80 @@ export default class App {
 
 
   async initAddMenuModal() {
-    const addDishModal = document.getElementById('modal-add-dish-to-base');
-    const menus = await AppModel.getMenu();
-    const buttom_element = document.getElementById('buttoms_module_add');
-    console.log(types);
-
+    const addDishModal = document.getElementById('modal-add-menu');
     const selectElement = document.createElement('select');
-    const id_selected = crypto.randomUUID();
-    localStorage.setItem('selected_add_dish', id_selected);
+    const menus = await AppModel.getMenu();
+    const buttom_element = document.getElementById('buttoms_module_add_menu');
+    console.log("Menu:", menus);
+    const variants = [];
+      
+    
+    const id_selected = 'selected_add_menu';//crypto.randomUUID();
+    localStorage.setItem('selected_add_menu', id_selected);
     selectElement.setAttribute('id', id_selected);
     selectElement.setAttribute('class', 'app-modal__select');
-    for(let type of types){
-      const optionElement = document.createElement('option');
-      optionElement.innerHTML = type['type'];
-      optionElement.setAttribute('value', type['typeID']);
-      selectElement.appendChild(optionElement);
+    let count = 0;
+    let i = -1;
 
+    let m_i = 0;
+    while(count <= 10){
+      i+=1;
+      
+      if(i < menus.length){
+        
+        if(menus[m_i]['variant'] != i+1){
+          console.log("variant = ", i+1);
+          const optionElement = document.createElement('option');
+          optionElement.innerHTML = i;
+          optionElement.setAttribute('value', i+1);
+          selectElement.appendChild(optionElement);
+          count += 1;
+        }
+      }
+      else {
+        console.log("variant = ", i+1);
+          const optionElement = document.createElement('option');
+          optionElement.innerHTML = i;
+          optionElement.setAttribute('value', i+1);
+          selectElement.appendChild(optionElement);
+          count += 1;
+        
+      }
     }
     buttom_element.before(selectElement);
-    
     const cancelHandler = () => {
       addDishModal.close();
       localStorage.setItem('addDishMenuID', '');
-      localStorage.setItem('selected_add_dish', '');
+      localStorage.setItem('selected_add_menu', '');
       addDishModal.querySelector('.app-modal__select').value = '';
+      const id_selected = localStorage.getItem('selected_add_menu');
+      const selectElement = document.getElementById(id_selected);
+      // selectElement.remove();
+      localStorage.setItem('selected_add_dish', '');
+      location.reload();
 
     };
-
     const okHandler = async () => {
+      
       const modalInput = addDishModal.querySelector('.app-modal__input');
-      const id_selected = localStorage.getItem('selected_add_dish');
-      const selectElement = document.getElementById(id_selected);
-      const typeID = String(selectElement.options[selectElement.selectedIndex].value);
-      const name = modalInput.value;
-      const dishID = crypto.randomUUID();
-      await AppModel.addDish({dishID, name, typeID});
+      const id_selected = 'selected_add_menu';//localStorage.getItem('selected_add_menu');
+      const selectVariant = document.getElementById(id_selected);
+      const selectDay = document.getElementById('week_select');
+      const variant = String(selectVariant.options[selectVariant.selectedIndex].value);
+      const day = String(selectDay.options[selectDay.selectedIndex].value);
+      const menuID = crypto.randomUUID();
+      await AppModel.addMenu({menuID, variant, day});
+      const newMenu = new Menu({
+        menuID,
+        day: day,
+        variant: variant,
+        onDropDishInMenu: this.onDropDishInMenu,
+        addNotification: this.addNotification});
+      this.#menus.push(newMenu);
+
+        this.#menus.push(newMenu);
+        newMenu.render();
+
       // document.getElementById('selected_add_to_menu').remove();
       // this.initDeleteDishFromMenuModal
 
@@ -387,25 +435,46 @@ export default class App {
     editDishModal.addEventListener('close', cancelHandler);
   }
 
-  initDeleteDishModal() {
+  async initDeleteDishModal() {
     const deleteDishModal = document.getElementById('modal-delete-dish-from-base');
+
+    const dishes = await AppModel.getDishes();
+    const buttom_element = document.getElementById('buttoms_module_delete_from_base');
+    console.log(dishes);
+
+    const selectElement = document.createElement('select');
+    const id_selected = 'deleteDishID';//crypto.randomUUID();
+    localStorage.setItem('deleteDishID', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__select');
+    for(let dish of dishes){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = `${dish.name} [${dish['type']}]\n ${dish.dishID}` ;
+      optionElement.setAttribute('value', "_"+dish.dishID);
+      selectElement.appendChild(optionElement);
+
+    }
+    buttom_element.before(selectElement);
     const cancelHandler = () => {
       deleteDishModal.close();
       localStorage.setItem('deleteDishID', '');
+      location.reload();
     };
 
-    // const okHandler = () => {
-    //   const dishID = localStorage.getItem('deleteDishID');
+    const okHandler = () => {
+      const id_selected = 'deleteDishID';//localStorage.getItem('deleteDishID');
+      const selectVariant = document.getElementById(id_selected);
+      const dishID = String(selectVariant.options[selectVariant.selectedIndex].value).replace('_', '');
 
-    //   if(dishID){
-    //     this.deleteDish({dishID});
+      console.log(dishID);
+      if(dishID){
+        this.deleteDish({dishID});
+      }
 
-    //   }
+      cancelHandler();
+    };
 
-    //   cancelHandler();
-    // };
-
-    // deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
     deleteDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
     deleteDishModal.addEventListener('close', cancelHandler);
   }
@@ -471,11 +540,11 @@ export default class App {
       .addEventListener(
         'click',
         (event) => {
-          event.target.style.display = 'none';
+          // event.target.style.display = 'none';
 
           const input = document.querySelector('.menu-adder__input');
-          input.style.display = 'inherit';
-          input.focus();
+          // input.style.display = 'inherit';
+          // input.focus();
         }
       );
 
@@ -498,9 +567,47 @@ export default class App {
     this.initDeleteDishFromMenuModal()
     this.initAddDishModal();
     this.initDeleteDishModal();
+    this.initAddMenuModal();
+    
+
+    
 
     const addMenuBtn = document.getElementById('menu-adder__btn');
-    addMenuBtn.addEventListener('click', () => {
+    addMenuBtn.addEventListener('click', async () => {
+      // const selectElement = document.getElementById('variant_select');
+      // const menus = await AppModel.getMenu();
+      // const buttom_element = document.getElementById('buttoms_module_add');
+      // console.log("Menu:", menus);
+      // const variants = [];
+        
+      
+      // const id_selected = crypto.randomUUID();
+      // localStorage.setItem('selected_add_dish', id_selected);
+      // selectElement.setAttribute('id', id_selected);
+      // selectElement.setAttribute('class', 'app-modal__select');
+      // let count = 0;
+      // let i = -1;
+      // while(count <= 10){
+      //   i+=1;
+      //   if(i < menus.length){
+      //     console.log(count);
+      //     if(menus[i]['variant'] != i+1){
+      //       const optionElement = document.createElement('option');
+      //       optionElement.innerHTML = i;
+      //       optionElement.setAttribute('value', i);
+      //       selectElement.appendChild(optionElement);
+      //       count += 1;
+      //     }
+      //   }
+      //   else {
+      //     count += 1;
+      //   }
+        
+        
+        
+
+      // }
+      // buttom_element.before(selectElement);
       document.getElementById('modal-add-menu').showModal();
     });
     

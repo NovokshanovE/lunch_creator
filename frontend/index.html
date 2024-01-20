@@ -30,11 +30,11 @@
         <button type="button" class="menu-adder__btn" id="menu-adder__btn">
           &#10010; Добавить ланч меню
         </button>
-        <input
+        <!-- <input
           type="text"
           placeholder="Новый список"
           class="menu-adder__input"
-        />
+        /> -->
       </li>
     </ul>
     <div class="dishes-change">
@@ -100,7 +100,7 @@
       <label class="app-modal__question">
       </label>
       <!-- <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input"> -->
-      <div class="app-modal__controls">
+      <div class="app-modal__controls" id="buttoms_module_delete_from_base">
         <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
         <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
       </div>
@@ -113,7 +113,7 @@
     <form class="app-modal__form">
       <label class="app-modal__question">
       </label>
-      <select id="week_select" class="app-modal__select">
+      <select id="week_select" class="app-modal-weekday__select">
         <option value="Пн">Понедельник</option>
         <option value="Вт">Вторник</option>
         <option value="Ср">Среда</option>
@@ -122,8 +122,11 @@
         <option value="Сб">Суббота</option>
         <option value="Вс">ВОскресенье</option>
       </select>
-      <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input">
-      <div class="app-modal__controls">
+      <!-- <select id="variant_select" class="app-modal-variant__select">
+        
+      </select> -->
+      <!-- <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input"> -->
+      <div class="app-modal__controls" id="buttoms_module_add_menu">
         <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
         <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
       </div>
