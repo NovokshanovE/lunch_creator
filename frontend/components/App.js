@@ -312,34 +312,38 @@ export default class App {
   }
 
   initDeleteDishModal() {
-    const deleteDishModal = document.getElementById('modal-delete-dish');
+    const deleteDishModal = document.getElementById('modal-delete-dish-from-base');
     const cancelHandler = () => {
       deleteDishModal.close();
       localStorage.setItem('deleteDishID', '');
     };
 
-    const okHandler = () => {
-      const dishID = localStorage.getItem('deleteDishID');
+    // const okHandler = () => {
+    //   const dishID = localStorage.getItem('deleteDishID');
 
-      if(dishID){
-        this.deleteDish({dishID});
+    //   if(dishID){
+    //     this.deleteDish({dishID});
 
-      }
+    //   }
 
-      cancelHandler();
-    };
+    //   cancelHandler();
+    // };
 
-    deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    // deleteDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
     deleteDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
     deleteDishModal.addEventListener('close', cancelHandler);
   }
 
   initDeleteDishFromMenuModal() {
     const deleteDishModal = document.getElementById('modal-delete-dish');
+    
     const cancelHandler = () => {
       deleteDishModal.close();
       localStorage.setItem('deleteDishID', '');
     };
+
+
+
 
     const okHandler = () => {
       const dishID = localStorage.getItem('deleteDishID');
@@ -418,6 +422,18 @@ export default class App {
     this.initDeleteDishFromMenuModal()
 
 
+    document.getElementById('append-btn').addEventListener('click', () => {
+      document.getElementById('modal-add-dish-to-base').showModal();
+    });
+
+    document.getElementById('change-btn').addEventListener('click', () => {
+      document.getElementById('modal-edit-dish').showModal();
+    });
+
+    document.getElementById('delete-btn').addEventListener('click', () => {
+      document.getElementById('modal-delete-dish-from-base').showModal();
+    });
+    
     document.addEventListener('dragover', (evt) => {
       evt.preventDefault();
 

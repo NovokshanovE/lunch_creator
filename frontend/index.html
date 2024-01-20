@@ -37,6 +37,15 @@
         />
       </li>
     </ul>
+    <div class="dishes-change">
+      <h2 class="change-dishes-list-panel">Изменение списка блюд</h2>
+      <ul class="buttom-list">
+        <button type="button" class="dishes-change__btn append-btn" id="append-btn">Добавить</button>
+        <button type="button" class="dishes-change__btn change-btn" id="change-btn">Изменить</button>
+        <button type="button" class="dishes-change__btn delete-btn" id="delete-btn">Удалить</button>
+      </ul>
+      
+    </div>
   </main>
   
   <dialog class="app-modal" id="modal-add-dish">
@@ -86,7 +95,19 @@
       </div>
     </form>
   </dialog>
+  <dialog class="app-modal" id="modal-delete-dish-from-base">
+    <form class="app-modal__form">
+      <label class="app-modal__question">
+      </label>
+      <!-- <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input"> -->
+      <div class="app-modal__controls">
+        <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
+        <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
+      </div>
+    </form>
+  </dialog>
   <dialog class="app-notifications" id="app-notifications">
   </dialog>
+
 </body>
 </html>

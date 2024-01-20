@@ -68,14 +68,14 @@ export default class Dish {
     const lowerRowDiv = document.createElement('div');
     lowerRowDiv.classList.add('dish__controls-row');
 
-    const editBtn = document.createElement('button');
-    editBtn.setAttribute('type', 'button');
-    editBtn.classList.add('dish__contol-btn', 'edit-icon');
-    editBtn.addEventListener('click', () => {
-      localStorage.setItem('editDishID', this.#dishID);
-      document.getElementById('modal-edit-dish').showModal();
-    });
-    lowerRowDiv.appendChild(editBtn);
+    // const editBtn = document.createElement('button');
+    // editBtn.setAttribute('type', 'button');
+    // editBtn.classList.add('dish__contol-btn', 'edit-icon');
+    // editBtn.addEventListener('click', () => {
+    //   localStorage.setItem('editDishID', this.#dishID);
+    //   document.getElementById('modal-edit-dish').showModal();
+    // });
+    // lowerRowDiv.appendChild(editBtn);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.setAttribute('type', 'button');
