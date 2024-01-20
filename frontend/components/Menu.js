@@ -95,7 +95,7 @@ export default class Menu {
 
     }
 
-    console.log(this.#dishes);
+    // console.log(this.#dishes);
   };
 
   appendNewDish = async ({ name }) => {
@@ -150,7 +150,7 @@ export default class Menu {
                 type: dish.type,
                 menuID: menu.menuID
               });
-            }u
+            }
         }
         
           
@@ -185,7 +185,7 @@ export default class Menu {
       menuID
     });
     this.#dishes.push(newDish);
-    console.log(name);
+    // console.log(name);
     const newDishElement = newDish.render();
     document.querySelector(`[id="${this.#menuID}"] .menu__dishes-list`)
       .appendChild(newDishElement);

@@ -140,7 +140,7 @@ export default class App {
       fDish.dishName = newDishName;
       document.querySelector(`[id="${dishID}"] span.dish__text`).innerHTML = newDishName;
 
-      console.log(updateDishResult);
+      // console.log(updateDishResult);
       this.addNotification({ name: updateDishResult.message, type: 'success'});
     } catch (err) {
       this.addNotification({ name: err.message, type: 'error'});
@@ -212,16 +212,16 @@ export default class App {
     const addDishModal = document.getElementById('modal-add-dish');
     const dishes = await AppModel.getDishes();
     const label_element = document.getElementById('label_add_element_to_menu');
-    console.log(dishes);
+    // console.log(dishes);
 
     const selectElement = document.createElement('select');
-    const id_selected = crypto.randomUUID();
+    const id_selected = crypto.randomUUID();//'selected_add_to_menu';
     localStorage.setItem('selected_add_to_menu', id_selected);
     selectElement.setAttribute('id', id_selected);
-    selectElement.setAttribute('class', 'app-modal__input');
+    selectElement.setAttribute('class', 'app-modal__select');
     for(let dish of dishes){
       const optionElement = document.createElement('option');
-      optionElement.innerHTML = dish['name'];
+      optionElement.innerHTML = `${dish['name']} [${dish['type']}]`;
       optionElement.setAttribute('value', dish['dishID']);
       selectElement.appendChild(optionElement);
 
@@ -233,16 +233,17 @@ export default class App {
     const cancelHandler = () => {
       addDishModal.close();
       localStorage.setItem('addDishMenuID', '');
-      addDishModal.querySelector('.app-modal__input').value = '';
+      localStorage.setItem('selected_add_dish', '');
+      addDishModal.querySelector('.app-modal__select').value = '';
     };
 
     const okHandler = () => {
       const menuID = localStorage.getItem('addDishMenuID');
-      const modalInput = addDishModal.querySelector('.app-modal__input');
+      // const modalInput = addDishModal.querySelector('.app-modal__input');
       const id_selected = localStorage.getItem('selected_add_to_menu');
       const selectElement = document.getElementById(id_selected);
       const dishID = String(selectElement.options[selectElement.selectedIndex].value);
-      console.log(dishID);
+      // console.log(dishID);
       if(menuID){
         this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
 
@@ -256,26 +257,46 @@ export default class App {
     addDishModal.addEventListener('close', cancelHandler);
   }
 
-  initAddDishModal() {
+  async initAddDishModal(){
     const addDishModal = document.getElementById('modal-add-dish-to-base');
+    const types = await AppModel.getTypes();
+    const buttom_element = document.getElementById('buttoms_module_add');
+    console.log(types);
+
+    const selectElement = document.createElement('select');
+    const id_selected = crypto.randomUUID();
+    localStorage.setItem('selected_add_dish', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__select');
+    for(let type of types){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = type['type'];
+      optionElement.setAttribute('value', type['typeID']);
+      selectElement.appendChild(optionElement);
+
+    }
+    buttom_element.before(selectElement);
     
     const cancelHandler = () => {
       addDishModal.close();
       localStorage.setItem('addDishMenuID', '');
-      addDishModal.querySelector('.app-modal__input').value = '';
+      localStorage.setItem('selected_add_dish', '');
+      addDishModal.querySelector('.app-modal__select').value = '';
+
     };
 
-    const okHandler = () => {
-      const menuID = localStorage.getItem(' ');
-      // const modalInput = addDishModal.querySelector('.app-modal__input');
-      const id_selected = localStorage.getItem('selected_add_to_menu');
+    const okHandler = async () => {
+      const modalInput = addDishModal.querySelector('.app-modal__input');
+      const id_selected = localStorage.getItem('selected_add_dish');
       const selectElement = document.getElementById(id_selected);
-      const dishID = String(selectElement.value);
-      console.log(dishID);
-      if(menuID){
-        this.#menus.find(menu => menu.menuID === menuID).appendNewDishToMenu({ dishID });
+      const typeID = String(selectElement.options[selectElement.selectedIndex].value);
+      const name = modalInput.value;
+      const dishID = crypto.randomUUID();
+      await AppModel.addDish({dishID, name, typeID});
+      // document.getElementById('selected_add_to_menu').remove();
+      // this.initDeleteDishFromMenuModal
 
-      }
+      //this.initAddDishToMenuModal();
 
       cancelHandler();
     };
@@ -285,6 +306,55 @@ export default class App {
     addDishModal.addEventListener('close', cancelHandler);
   }
 
+
+  async initAddMenuModal() {
+    const addDishModal = document.getElementById('modal-add-dish-to-base');
+    const menus = await AppModel.getMenu();
+    const buttom_element = document.getElementById('buttoms_module_add');
+    console.log(types);
+
+    const selectElement = document.createElement('select');
+    const id_selected = crypto.randomUUID();
+    localStorage.setItem('selected_add_dish', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__select');
+    for(let type of types){
+      const optionElement = document.createElement('option');
+      optionElement.innerHTML = type['type'];
+      optionElement.setAttribute('value', type['typeID']);
+      selectElement.appendChild(optionElement);
+
+    }
+    buttom_element.before(selectElement);
+    
+    const cancelHandler = () => {
+      addDishModal.close();
+      localStorage.setItem('addDishMenuID', '');
+      localStorage.setItem('selected_add_dish', '');
+      addDishModal.querySelector('.app-modal__select').value = '';
+
+    };
+
+    const okHandler = async () => {
+      const modalInput = addDishModal.querySelector('.app-modal__input');
+      const id_selected = localStorage.getItem('selected_add_dish');
+      const selectElement = document.getElementById(id_selected);
+      const typeID = String(selectElement.options[selectElement.selectedIndex].value);
+      const name = modalInput.value;
+      const dishID = crypto.randomUUID();
+      await AppModel.addDish({dishID, name, typeID});
+      // document.getElementById('selected_add_to_menu').remove();
+      // this.initDeleteDishFromMenuModal
+
+      //this.initAddDishToMenuModal();
+
+      cancelHandler();
+    };
+
+    addDishModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    addDishModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    addDishModal.addEventListener('close', cancelHandler);
+  }
 
   initEditDishModal() {
     const editDishModal = document.getElementById('modal-edit-dish');
@@ -405,8 +475,8 @@ export default class App {
 
     document.addEventListener('keydown', this.onEscapeKeydown);
 
-    document.querySelector('.menu-adder__input')
-      .addEventListener('keydown', this.onInputKeydown);
+    // document.querySelector('.menu-adder__input')
+    //   .addEventListener('keydown', this.onInputKeydown);
 
     document.getElementById('theme-switch')
       .addEventListener('change', (evt) => {
@@ -420,6 +490,14 @@ export default class App {
     // this.initDeleteDishModal();
     this.initNotifications();
     this.initDeleteDishFromMenuModal()
+    this.initAddDishModal();
+    this.initDeleteDishModal();
+
+    const addMenuBtn = document.getElementById('menu-adder__btn');
+    addMenuBtn.addEventListener('click', () => {
+      document.getElementById('modal-add-menu').showModal();
+    });
+    
 
 
     document.getElementById('append-btn').addEventListener('click', () => {
@@ -508,7 +586,7 @@ export default class App {
             type: dish.type,
             menuID: menu.menuID
           });
-          console.log(dish.name);
+          // console.log(dish.name);
         
         }
       }

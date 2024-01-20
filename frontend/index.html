@@ -27,7 +27,7 @@
   <main class="app-main" id="app-main">
     <ul class="menus-list">
       <li class="menus-list__item menu-adder">
-        <button type="button" class="menu-adder__btn">
+        <button type="button" class="menu-adder__btn" id="menu-adder__btn">
           &#10010; Добавить ланч меню
         </button>
         <input
@@ -65,8 +65,8 @@
       <label for="modal-add-dish-input" class="app-modal__question" id="label_add_element">
         Задайте параметры:
       </label>
-      <input type="text" name="" id="modal-add-dish-input" class="app-modal__input">
-      <div class="app-modal__controls">
+      <input type="text" name="" id="modal-add-dish-to-base-input" class="app-modal__input">
+      <div class="app-modal__controls" id="buttoms_module_add">
         <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
         <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
       </div>
@@ -100,6 +100,20 @@
       <label class="app-modal__question">
       </label>
       <!-- <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input"> -->
+      <div class="app-modal__controls">
+        <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
+        <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog class="app-notifications" id="app-notifications">
+  </dialog>
+
+  <dialog class="app-modal" id="modal-add-menu">
+    <form class="app-modal__form">
+      <label class="app-modal__question">
+      </label>
+      <input type="text" name="" id="modal-delete-dish-input" class="app-modal__input">
       <div class="app-modal__controls">
         <button type="button" class="app-modal__btn modal-ok-btn">OK</button>
         <button type="button" class="app-modal__btn modal-cancel-btn">Отмена</button>

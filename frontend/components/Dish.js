@@ -19,7 +19,7 @@ export default class Dish {
     this.#dishTypeID = typeID;
     this.#dishType = type
     this.#menuID = menuID;
-    console.log(this.#menuID);
+    // console.log(this.#menuID);
   }
 
   get dishID() { return this.#dishID; }

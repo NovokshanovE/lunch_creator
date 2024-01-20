@@ -39,6 +39,25 @@ export default class AppModel {
         }
     }
 
+    static async getTypes() {
+        try{
+            const typesResponse = await fetch('http://localhost:4321/types'); // get запрос по-умолчанию
+            const typesBody = await typesResponse.json();
+
+            if(typesResponse.status !== 200){
+                return Promise.reject(typesBody);
+            }
+
+            return typesBody.types;
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
+
 
     static async addMenu({ menuID, variant = -1, day} = {
         menuID: null,

@@ -337,6 +337,14 @@ body.dark-theme {
 
 }
 
+.app-modal__select {
+  padding: 0.6vw;
+  border-radius: 0.7vw;
+  font-size: clamp(0.7rem, 1.5vw, 1.5vw);
+  color: var(--black-color);
+  border: 2px solid var(--black-color)
+}
+
 select {
   padding: 0.6vw;
   border-radius: 0.7vw;
@@ -387,6 +395,7 @@ select {
 .dishes-change__btn {
   cursor: pointer;
   padding: 5px;
+  gap: 10vh;
   box-sizing: 10vw;
   width: 10vw;
   /* padding: 0.6vw; */
@@ -398,11 +407,13 @@ select {
 }
 
 .buttom-list {
+  border-top-width: 10vh;
   /* width: 100%; */
   border: none;
   right: 0;
   bottom: 3vw;
   left: 3vw;
+  
   background: none;
   display: flex;
   flex-direction: column;
