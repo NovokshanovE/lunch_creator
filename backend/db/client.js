@@ -263,6 +263,58 @@ export default class DB {
 
     }
 
+    async editMenu({
+        menuID,
+        day,
+        variant
+    } = {
+        menuID: null,
+        day: '',
+        variant: -1,
+    }){
+        if((!variant && !day) || !menuID){
+            const errMsg = `Update menu error: wrong params (id: ${menuID}, day: ${day}, variant: ${variant})`;
+            console.error(errMsg);
+            return Promise.reject({
+                type: 'client',
+                error: new Error(errMsg)
+            });
+        }
+        // console.log(dishID,
+        //     name,
+        //     typeID);
+
+        let query = null;
+        const queryParams = [];
+        if(day && variant){
+            query = 'update menu set day = $1, variant = $2 where id = $3;';
+            queryParams.push(day, variant, menuID);
+        } else if(day){
+            
+            query = 'update menu set day = $1 where id = $2;';
+            queryParams.push(day, menuID);
+            
+        } else {
+            query = 'update menu set variant = $1 where id = $2;';
+            queryParams.push(variant, menuID);
+        }
+        try {
+            await this.#dbClient.query(
+                query,
+                queryParams
+            );
+
+        } catch (error) {
+            console.error('Unable update dish, error: ', error);
+            return Promise.reject({
+                type: 'internal',
+                error
+            });
+
+        }
+
+    }
+
     async deleteDish({
         dishID
     } = {

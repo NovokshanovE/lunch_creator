@@ -278,6 +278,36 @@ app.patch('/dishes', async ( req, res) => {
     }
 });
 
+app.patch('/menu/:menuID', async ( req, res) => {
+    try{
+        const { menuID } = req.params;
+        const { day, variant } = req.body;
+
+        await db.editMenu({menuID, day, variant});
+        
+        res.statusCode = 200;
+        res.statusMessage = 'OK';
+        res.send();
+
+    } catch(err) {
+        switch(err.type){
+            case 'client':
+                res.statusCode = 400;
+                res.statusMessage = 'Bad request';
+                break;
+            default:
+                res.statusCode = 500;
+                res.statusMessage = 'Internal server error';
+        }
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            statusCode: res.statusCode,
+            message: `Update menu error: ${ err.error}`
+        });
+    }
+});
+
 // delete dish
 app.delete('/dishes/:dishID', async (req, res) => {
     try{

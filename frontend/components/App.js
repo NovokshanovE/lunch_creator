@@ -361,7 +361,7 @@ export default class App {
           console.log("variant = ", i+1);
           const optionElement = document.createElement('option');
           optionElement.innerHTML = i;
-          optionElement.setAttribute('value', i+1);
+          optionElement.setAttribute('value', i);
           selectElement.appendChild(optionElement);
           count += 1;
         }
@@ -370,7 +370,7 @@ export default class App {
         console.log("variant = ", i+1);
           const optionElement = document.createElement('option');
           optionElement.innerHTML = i;
-          optionElement.setAttribute('value', i+1);
+          optionElement.setAttribute('value', i);
           selectElement.appendChild(optionElement);
           count += 1;
         
@@ -611,6 +611,94 @@ export default class App {
     deleteMenuModal.addEventListener('close', cancelHandler);
   }
 
+  async initEditMenuModal() {
+    const editMenuModal = document.getElementById('modal-edit-menu');
+    const selectElement = document.createElement('select');
+    const menus = await AppModel.getMenu();
+    const buttom_element = document.getElementById('buttoms_module_edit_menu');
+    console.log("Menu:", menus);
+    const variants = [];
+      
+    
+    const id_selected = 'selected_edit_menu';//crypto.randomUUID();
+    localStorage.setItem('selected_edit_menu', id_selected);
+    selectElement.setAttribute('id', id_selected);
+    selectElement.setAttribute('class', 'app-modal__select');
+    let count = 0;
+    let i = -1;
+
+    let m_i = 0;
+    while(count <= 10){
+      i+=1;
+      
+      if(i < menus.length){
+        
+        if(menus[m_i]['variant'] != i+1){
+          console.log("variant = ", i+1);
+          const optionElement = document.createElement('option');
+          optionElement.innerHTML = i;
+          optionElement.setAttribute('value', i);
+          selectElement.appendChild(optionElement);
+          count += 1;
+        }
+      }
+      else {
+        console.log("variant = ", i+1);
+          const optionElement = document.createElement('option');
+          optionElement.innerHTML = i;
+          optionElement.setAttribute('value', i);
+          selectElement.appendChild(optionElement);
+          count += 1;
+        
+      }
+    }
+    buttom_element.before(selectElement);
+    const cancelHandler = () => {
+      editMenuModal.close();
+      localStorage.setItem('addDishMenuID', '');
+      localStorage.setItem('selected_edit_menu', '');
+      editMenuModal.querySelector('.app-modal__select').value = '';
+      const id_selected = localStorage.getItem('selected_edit_menu');
+      const selectElement = document.getElementById(id_selected);
+      // selectElement.remove();
+      localStorage.setItem('selected_add_dish', '');
+      location.reload();
+
+    };
+    const okHandler = async () => {
+      
+      //const modalInput = editMenuModal.querySelector('.app-modal__input');
+      const id_selected = 'selected_edit_menu';//localStorage.getItem('selected_add_menu');
+      const selectVariant = document.getElementById(id_selected);
+      const selectDay = document.getElementById('week_select');
+      const variant = String(selectVariant.options[selectVariant.selectedIndex].value);
+      const day = String(selectDay.options[selectDay.selectedIndex].value);
+      const menuID = localStorage.getItem('edit_Menu');
+      await AppModel.editMenu({menuID, variant, day});
+      // const newMenu = new Menu({
+      //   menuID,
+      //   day: day,
+      //   variant: variant,
+      //   onDropDishInMenu: this.onDropDishInMenu,
+      //   addNotification: this.addNotification});
+      // this.#menus.push(newMenu);
+
+      //   this.#menus.push(newMenu);
+        // newMenu.render();
+
+      // document.getElementById('selected_add_to_menu').remove();
+      // this.initDeleteDishFromMenuModal
+
+      //this.initAddDishToMenuModal();
+
+      cancelHandler();
+    };
+
+    editMenuModal.querySelector('.modal-ok-btn').addEventListener('click', okHandler);
+    editMenuModal.querySelector('.modal-cancel-btn').addEventListener('click', cancelHandler);
+    editMenuModal.addEventListener('close', cancelHandler);
+  }
+
 
   addNotification = ({name, type}) => {
     const notifications = document.getElementById('app-notifications');
@@ -629,6 +717,9 @@ export default class App {
 
     setTimeout(() => {document.getElementById(notificationID).remove();}, 5000)
   };
+
+
+  
 
   async init() {
     document.querySelector('.menu-adder__btn')
@@ -664,6 +755,7 @@ export default class App {
     this.initDeleteDishModal();
     this.initAddMenuModal();
     this.initDeleteMenuModal();
+    this.initEditMenuModal();
     
 
     

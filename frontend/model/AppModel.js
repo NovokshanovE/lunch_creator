@@ -289,6 +289,41 @@ export default class AppModel {
         }
     }
 
+    static async editMenu({menuID, day, variant } = {
+        menuID: null,
+        day: '',
+        variant: -1
+    }) {
+        try{
+            const deleteDishResponse = await fetch(
+                `http://localhost:4321/menu/${menuID}`,
+                {
+                    method: 'PATCH',
+                    body: JSON.stringify({ day, variant}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            ); // get запрос по-умолчанию
+
+            if(deleteDishResponse.status !== 200){
+                const deleteDishBody = await deleteDishResponse.json();
+                return Promise.reject(deleteDishBody);
+            }
+
+            return {
+                timestamp: new Date().toISOString(),
+                message: `Menu (ID = '${menuID}') was successfully changed from menu list`
+            };
+        } catch(err){
+            return Promise.reject({
+                timestamp: new Date().toISOString(),
+                statusCode: 0,
+                message: err.message
+            });
+        }
+    }
+
     static async deleteDishFromMenu({dishID, menuID} = {
         dishID: null,
         menuID: null

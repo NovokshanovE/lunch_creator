@@ -220,8 +220,8 @@ export default class Menu {
     editBtn.setAttribute('type', 'button');
     editBtn.classList.add('menu__contol-btn', 'edit-icon');
     editBtn.addEventListener('click', () => {
-      // localStorage.setItem('editTaskID', this.#taskID);
-      // document.getElementById('modal-edit-task').showModal();
+      localStorage.setItem('edit_Menu', this.#menuID);
+      document.getElementById('modal-edit-menu').showModal();
     });
     lowerRowDiv.appendChild(editBtn);
     const deleteBtn = document.createElement('button');
