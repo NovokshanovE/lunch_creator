@@ -65,6 +65,7 @@ export default class AppModel {
         day: ''
     }) {
         try{
+            //conslole.log({ menuID, variant, day});
             const addmenuResponse = await fetch(
                 'http://localhost:4321/menu',
                 {
@@ -169,7 +170,7 @@ export default class AppModel {
         typeID: null
     }) {
         try{
-            console.log({dishID, name, typeID});
+            //conslole.log({dishID, name, typeID});
             const updateDishResponse = await fetch(
                 `http://localhost:4321/dishes/${dishID}`,
                 {

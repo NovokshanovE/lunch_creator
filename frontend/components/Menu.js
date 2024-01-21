@@ -25,6 +25,18 @@ export default class Menu {
 
   get menuVariant() { return this.#menuVariant; }
 
+  get menuDay() {return this.#menuDay}
+
+  set editMenu({variant, day}){
+    this.#menuDay = day;
+    this.#menuVariant = variant;
+    document.querySelector(`[id="${this.#menuID}"] span.menu__name`).innerHTML = newDishName;
+  }
+
+  get dishes() {
+    return(this.#dishes);
+  }
+
   pushDish = ({ dish }) => this.#dishes.push(dish);
 
   getDishById = ({ dishID }) => this.#dishes.find(dish => dish.dishID === dishID);
@@ -35,7 +47,7 @@ export default class Menu {
     if (deleteDishIndex === -1) return;
 
     // const menus = await AppModel.getMenu();
-    // // console.log(menus);
+    // // //conslole.log(menus);
     // for(const menu of menus){
       
     //   if(menu.)
@@ -52,7 +64,7 @@ export default class Menu {
     //     }
         
 
-    //     // console.log(dish.name);
+    //     // //conslole.log(dish.name);
       
     //   }
     // }
@@ -63,7 +75,7 @@ export default class Menu {
   };
 
   reorderDishes = async () => {
-    console.log(document.querySelector(`[id="${this.#menuID}"] .menu__dishes-list`));
+    //conslole.log(document.querySelector(`[id="${this.#menuID}"] .menu__dishes-list`));
     const orderedDishsIDs = Array.from(
       document.querySelector(`[id="${this.#menuID}"] .menu__dishes-list`).children,
       elem => elem.getAttribute('id')
@@ -96,7 +108,7 @@ export default class Menu {
 
     }
 
-    // console.log(this.#dishes);
+    // //conslole.log(this.#dishes);
   };
 
   appendNewDish = async ({ name }) => {
@@ -137,7 +149,7 @@ export default class Menu {
       });
       
       const menus = await AppModel.getMenu();
-      // console.log(menus);
+      // //conslole.log(menus);
       for(const menu of menus){
         
         if(this.#menuID === menu.menuID){
@@ -156,7 +168,7 @@ export default class Menu {
         
           
 
-          // console.log(dish.name);
+          // //conslole.log(dish.name);
         
         }
       }
@@ -186,11 +198,21 @@ export default class Menu {
       menuID
     });
     this.#dishes.push(newDish);
-    // console.log(name);
+    // //conslole.log(name);
     const newDishElement = newDish.render();
     document.querySelector(`[id="${this.#menuID}"] .menu__dishes-list`)
       .appendChild(newDishElement);
   };
+
+
+  editMenu = ({day, variant}) => {
+    this.#menuDay = day;
+    this.#menuVariant = variant;
+    for(let dish of this.#dishes){
+      dish.render();
+    }
+    // this.render();
+  }
   render() {
     const liElement = document.createElement('li');
     liElement.classList.add(
