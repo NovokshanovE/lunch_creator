@@ -394,7 +394,7 @@ export default class App {
       const modalInput = addDishModal.querySelector('.app-modal__input');
       const id_selected = 'selected_add_menu';//localStorage.getItem('selected_add_menu');
       const selectVariant = document.getElementById(id_selected);
-      const selectDay = document.getElementById('week_select');
+      const selectDay = document.getElementById('week_select_add');
       const variant = String(selectVariant.options[selectVariant.selectedIndex].value);
       const day = String(selectDay.options[selectDay.selectedIndex].value);
       const menuID = crypto.randomUUID();
@@ -670,7 +670,7 @@ export default class App {
       //const modalInput = editMenuModal.querySelector('.app-modal__input');
       const id_selected = 'selected_edit_menu';//localStorage.getItem('selected_add_menu');
       const selectVariant = document.getElementById(id_selected);
-      const selectDay = document.getElementById('week_select');
+      const selectDay = document.getElementById('week_select_edit');
       const variant = String(selectVariant.options[selectVariant.selectedIndex].value);
       const day = String(selectDay.options[selectDay.selectedIndex].value);
       const menuID = localStorage.getItem('edit_Menu');
